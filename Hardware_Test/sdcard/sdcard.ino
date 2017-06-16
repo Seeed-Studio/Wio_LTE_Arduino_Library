@@ -29,9 +29,6 @@ char* fileName = "gps.txt";
 void setup() {
   // Open serial communications and wait for port to open:
   SerialUSB.begin(115200);
-  // while (!SerialUSB) {
-  //   ; // wait for serialUSB port to connect. Needed for native USB port only
-  // }
 
 
   SerialUSB.print("Initializing SD card...");

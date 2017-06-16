@@ -37,22 +37,30 @@
 //     return true;
 // }
 
-// bool GNSS::close_GNSS()
-// {
-//   int errCounts = 0;
+bool GNSS::close_GNSS()
+{
+  int errCounts = 0;
 
-//   //Open GNSS funtion
-//   while(!check_with_cmd("AT+QGNSSC?\n\r", "+QGNSSC: 0", CMD, 2, 2000, UART_DEBUG)){
-//       errCounts ++;
-//       if(errCounts > 5){
-//         return false;
-//       }
-//       check_with_cmd("AT+QGNSSC=0\n\r", "OK", CMD, 2, 2000, UART_DEBUG);
-//       delay(1000);
-//   }
+  //Open GNSS funtion
+  while(!check_with_cmd("AT+QGNSSC?\n\r", "+QGNSSC: 0", CMD, 2, 2000, UART_DEBUG)){
+      errCounts ++;
+      if(errCounts > 100){
+        return false;
+      }
+      check_with_cmd("AT+QGNSSC=0\n\r", "OK", CMD, 2, 2000, UART_DEBUG);
+      delay(1000);
+  }
 
-//   return true;
-// }
+  return true;
+}
+
+bool GNSS::dataFlowMode(void)
+{
+    // Make sure that "#define UART_DEBUG" is uncomment.
+    send_cmd("AT+QGPSLOC?\n\r");
+    return wait_for_resp("OK", CMD, 2, 2000, true);
+    // return check_with_cmd("AT+QGNSSRD?\n\r", "OK", CMD);
+}
 
 // bool GNSS::open_GNSS(int mode)
 // {
@@ -76,22 +84,22 @@
 //   return ret;
 // }
 
-// bool GNSS::open_GNSS(void)
-// {
-//   int errCounts = 0;
+bool GNSS::open_GNSS(void)
+{
+  int errCounts = 0;
 
-//   //Open GNSS funtion
-//   while(!check_with_cmd("AT+QGNSSC?\n\r", "+QGNSSC: 1", CMD, 2, 2000, UART_DEBUG)){
-//       errCounts ++;
-//       if(errCounts > 5){
-//         return false;
-//       }
-//       check_with_cmd("AT+QGNSSC=1\n\r", "OK", CMD, 2, 2000, UART_DEBUG);
-//       delay(1000);
-//   }
+  //Open GNSS funtion
+  while(!check_with_cmd("AT+QGPS?\r\n", "+QGPS: 1", CMD, 2, 2000, UART_DEBUG)){
+      errCounts ++;
+      if(errCounts > 5){
+        return false;
+      }
+      check_with_cmd("AT+QGPS=1\r\n", "OK", CMD, 2, 2000, UART_DEBUG);
+      delay(1000);
+  }
 
-//   return true;
-// }
+  return true;
+}
 
 // bool GNSS::open_GNSS_default_mode(void)
 // {
@@ -317,13 +325,6 @@
 //     return true;
 // }
 
-// bool GNSS::dataFlowMode(void)
-// {
-//     // Make sure that "#define UART_DEBUG" is uncomment.
-//     send_cmd("AT+QGNSSRD?\n\r");
-//     return wait_for_resp("OK", CMD, 2, 2000, true);
-//     // return check_with_cmd("AT+QGNSSRD?\n\r", "OK", CMD);
-// }
 
 // bool GNSS::settingContext(void)
 // {

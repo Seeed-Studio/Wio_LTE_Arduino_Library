@@ -36,19 +36,7 @@
 
 WioTracker::WioTracker()
 {
-    // pinMode(PWR_KEY_PIN, OUTPUT);
-    // pinMode(MODULE_PWR_PIN, OUTPUT);
-    // pinMode(ENABLE_VCCB_PIN, OUTPUT);
-    // pinMode(RESET_MODULE_PIN, OUTPUT);
-    // pinMode(WAKEUP_IN_PIN, OUTPUT);
-    // pinMode(STATUS_PIN, INPUT);
 
-    // digitalWrite(PWR_KEY_PIN, HIGH);
-    // digitalWrite(MODULE_PWR_PIN, HIGH);     // Module Power Default HIGH
-    // digitalWrite(ENABLE_VCCB_PIN, LOW);    // VCC_B Enable pin
-    // digitalWrite(RESET_MODULE_PIN, HIGH);  // RESET_N Default HIGH 
-
-    // Module_init();
 }
 
 bool WioTracker::init(void)
@@ -84,25 +72,29 @@ void WioTracker::Power_On(void)
   }    
   pinMode(MODULE_PWR_PIN, OUTPUT);
   pinMode(ENABLE_VCCB_PIN, OUTPUT);
+  digitalWrite(MODULE_PWR_PIN, HIGH);
+  pinMode(ANT_PWR_PIN, OUTPUT);
   // pinMode(RESET_MODULE_PIN, OUTPUT);
   pinMode(WAKEUP_IN_PIN, OUTPUT);
   pinMode(STATUS_PIN, INPUT);
 
+  digitalWrite(ANT_PWR_PIN, HIGH);     // antenna power enable
   // digitalWrite(PWR_KEY_PIN, HIGH);
   digitalWrite(MODULE_PWR_PIN, HIGH);     // Module Power Default HIGH
+  delay(1000);
   digitalWrite(ENABLE_VCCB_PIN, HIGH);    // VCC_B Enable pin
   // digitalWrite(RESET_MODULE_PIN, HIGH);  // RESET_N Default HIGH 
   
-  digitalWrite(MODULE_PWR_PIN, HIGH);
+  
   digitalWrite(WAKEUP_IN_PIN, LOW);
   delay(500);
   pinMode(PWR_KEY_PIN, OUTPUT);
-  digitalWrite(PWR_KEY_PIN, HIGH);
+  digitalWrite(PWR_KEY_PIN, LOW);
   SerialUSB.print("STATUS_PIN 1: ");
   SerialUSB.println(digitalRead(STATUS_PIN));
-  digitalWrite(PWR_KEY_PIN, LOW);
-  delay(2000);
   digitalWrite(PWR_KEY_PIN, HIGH);
+  delay(2000);
+  digitalWrite(PWR_KEY_PIN, LOW);
   delay(500);
 
   while(pwr_status == 1){
@@ -117,6 +109,12 @@ void WioTracker::Power_On(void)
     }
   }
 }
+
+void WioTracker::VCCB_Power_On(void)
+{
+  digitalWrite(ENABLE_VCCB_PIN, HIGH);
+}
+
 
 void WioTracker::powerReset(void)
 { 

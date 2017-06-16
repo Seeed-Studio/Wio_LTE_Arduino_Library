@@ -34,7 +34,7 @@
 
 #include <Arduino.h>
 
-#define MODULE_PORT Serial1
+#define MODULE_PORT Serial1   // UART2
 #define serialDebug SerialUSB
 
 #define DEFAULT_TIMEOUT              5   //seconds

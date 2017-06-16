@@ -80,6 +80,7 @@ public:
      *      
      */
     void Power_On(void);
+    void VCCB_Power_On(void);
     
     /** power reset for SIM800 board 
      *  @param  pin (preconfigurated as OUTPUT)
@@ -198,11 +199,13 @@ public:
     const int ENABLE_VCCB_PIN   = 26;
     const int MODULE_PWR_PIN    = 18;
     const int PWR_KEY_PIN       = 36;
+    const int ANT_PWR_PIN       = 28;
 
     const int WAKEUP_IN_PIN      = 32;
     const int AP_READY_PIN       = 33;
     const int WAKEUP_DISABLE_PIN = 34;
     const int RESET_MODULE_PIN   = 35;
     const int STATUS_PIN         = 31;
+    const int RGB_LED_PIN        = 17;
 };
 #endif

@@ -6,10 +6,10 @@
 
 */
 
-#include "MC20_Arduino_Interface.h"
+#include "Arduino_Interface.h"
 #include <Adafruit_NeoPixel.h>
 
-#define RGBPIN       10
+#define RGBPIN       17
 #define LED_NUM      1
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(LED_NUM, RGBPIN, NEO_GRB + NEO_KHZ800);

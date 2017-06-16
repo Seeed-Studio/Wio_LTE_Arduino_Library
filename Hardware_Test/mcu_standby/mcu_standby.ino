@@ -3,17 +3,8 @@
 #include "Arduino_Interface.h"
 #include "pwr.h"
 
-#define SET_BIT(REG, BIT)  ((REG) |= (BIT))
-#define SCB_SCR_SLEEPDEEP_Pos               2                                             /*!< SCB SCR: SLEEPDEEP Position */
-#define SCB_SCR_SLEEPDEEP_Msk              (1UL << SCB_SCR_SLEEPDEEP_Pos)                 /*!< SCB SCR: SLEEPDEEP Mask */
 
-
-
-// Function declare
-void mcu_standby();
-
-
-WioTracker wio = WioTracker();
+// WioTracker wio = WioTracker();
 
 
 void setup() {
@@ -26,9 +17,19 @@ void setup() {
   //   SerialUSB.println("Waitting for module to alvie...");
   //   delay(1000);
   // }  
+  // delay(5000);
   // SerialUSB.println("Power On O.K!");
+  // delay(1000);
+  // SerialUSB.println("Power On O.K!");
+  // delay(1000);
+  // SerialUSB.println("Power On O.K!");
+  // delay(1000);
+  SerialUSB.println("Enter standby mode!");
+  delay(1000);
   pwr_init();
-  
+  // peripheral_standby();
+  hal_pwr_enter_standby_mode();
+
 }
 
 void loop() {
@@ -43,6 +44,12 @@ void loop() {
   delay(1000);
 }
 
+
+void peripheral_standby(){
+  for(int i = 0; i < 63; i++){
+    pinMode(i, INPUT_ANALOG);
+  }
+}
 
 
 

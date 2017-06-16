@@ -5,8 +5,13 @@
 WioTracker wio = WioTracker();
 
 void setup() {
-  SerialUSB.begin(115200);
-  // delay(5000);
+  // Enable Module Power
+  // pinMode(wio.MODULE_PWR_PIN, OUTPUT);
+  // digitalWrite(wio.MODULE_PWR_PIN , HIGH);    
+  // // Enable VCCB
+  // pinMode(wio.ENABLE_VCCB_PIN, OUTPUT);
+  // digitalWrite(wio.ENABLE_VCCB_PIN, HIGH);
+
   SerialUSB.println("Begin...");
 
   wio.Power_On();

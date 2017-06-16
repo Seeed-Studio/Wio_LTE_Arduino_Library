@@ -3,12 +3,6 @@
 #include "Arduino_Interface.h"
 #include "pwr.h"
 
-#define SET_BIT(REG, BIT)  ((REG) |= (BIT))
-#define SCB_SCR_SLEEPDEEP_Pos               2                                             /*!< SCB SCR: SLEEPDEEP Position */
-#define SCB_SCR_SLEEPDEEP_Msk              (1UL << SCB_SCR_SLEEPDEEP_Pos)                 /*!< SCB SCR: SLEEPDEEP Mask */
-
-
-
 // Function declare
 void mcu_standby();
 
@@ -28,6 +22,7 @@ void setup() {
   // }  
   // SerialUSB.println("Power On O.K!");
   pwr_init();
+  hal_pwr_enter_sleep_mode();
   
 }
 
