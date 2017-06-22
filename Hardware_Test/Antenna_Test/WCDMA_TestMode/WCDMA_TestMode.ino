@@ -1,9 +1,14 @@
+#include <Arduino.h>
 #include "module_common.h"
-#include "Arduino_Interface.h"
-#include "gnss.h"
-#include "SeeedGrayOLED.h"
-#include "Wire.h"
+#include <Wire.h>
+#include <SeeedGrayOLED.h>
+#include <avr/pgmspace.h>
 
+const int BAT_C_PIN = 16;
+static long TTS_StartTime = 0;
+
+WioTracker wio = WioTracker();
+char buffer[64];
 
 static const unsigned char wioTracker[] PROGMEM = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -137,125 +142,280 @@ static const unsigned char wioTracker[] PROGMEM = {
 };
 
 
-// Battery power level read Pin
-const int BAT_C_PIN = 16;
-
-// Instance of GNSS class
-GNSS gnss = GNSS();
+void setDisplayToOriginalState()
+{
+    SeeedGrayOled.init();
+}
 
 void setup(){
-  // Enable Module Power
-  pinMode(gnss.MODULE_PWR_PIN, OUTPUT);
-  digitalWrite(gnss.MODULE_PWR_PIN , HIGH);    
-  // Enable VCCB
-  pinMode(gnss.ENABLE_VCCB_PIN, OUTPUT);
-  digitalWrite(gnss.ENABLE_VCCB_PIN, HIGH);
-  // BAT PIN
-  pinMode(BAT_C_PIN, INPUT_ANALOG);
+    // Enable Module Power
+    pinMode(wio.MODULE_PWR_PIN, OUTPUT);
+    digitalWrite(wio.MODULE_PWR_PIN , HIGH);    
+    // Enable VCCB
+    pinMode(wio.ENABLE_VCCB_PIN, OUTPUT);
+    digitalWrite(wio.ENABLE_VCCB_PIN, HIGH);    
 
-  // Serial port init
+    // Serial port init
 	Serial.begin(115200);  // Grove UART
 	
-	// Module power on
-  gnss.Power_On();
-  while(false == gnss.Check_If_Power_On()){
-    SerialUSB.println("Waitting for module to alvie...");
+    // OELD init
+    Wire.begin();
+    SeeedGrayOled.init();
+    // Draw image on OELD
+    setDisplayToOriginalState();  
+	SeeedGrayOled.clearDisplay();
+	//Draw binary Bitmap
+    SeeedGrayOled.drawBitmap(wioTracker,128*128/8);
     delay(1000);
-  } 
-  SerialUSB.println("\n\rPower On!");
+    SeeedGrayOled.clearDisplay();     //Clear Display.
+    SeeedGrayOled.setNormalDisplay(); //Set Normal Display Mode
+    SeeedGrayOled.setVerticalMode();  // Set to vertical mode for displaying texts
 
-  if(!(gnss.open_GNSS())){
-    SerialUSB.println("\n\rGNSS init failed!");
-    return;
-  }
+	// Module power on
+	wio.Power_On();
+	while(false == wio.Check_If_Power_On()){
+		SerialUSB.println("Waitting for module to alvie...");
+		delay(1000);
+	}  
+    SerialUSB.println("Power On O.K!");
 
-  SerialUSB.println("Open GNSS OK.");
-  delay(2000);
+    // Init ADC Pin
+    pinMode(4, INPUT_ANALOG);
+    pinMode(5, INPUT_ANALOG);
+    pinMode(6, INPUT_ANALOG);
+    pinMode(7, INPUT_ANALOG);
+    pinMode(BAT_C_PIN, INPUT_ANALOG);
 
-  // OELD init
-  Wire.begin();
-  SeeedGrayOled.init(); 
-  SeeedGrayOled.clearDisplay();
-  SeeedGrayOled.drawBitmap(wioTracker,128*128/8);
-  SeeedGrayOled.clearDisplay();     //Clear Display.
-  SeeedGrayOled.setNormalDisplay(); //Set Normal Display Mode
-  SeeedGrayOled.setVerticalMode();  // Set to vertical mode for displaying text
+    // Init Grove digital Pins
+    pinMode(19, OUTPUT);
+    pinMode(20, OUTPUT);
+    pinMode(38, OUTPUT);
+    pinMode(39, OUTPUT);
+    
+    // Test SerialUSB write
+    SerialUSB.println("Start...");
 
-}
+    // OLED display Module Ready!
+    SeeedGrayOled.setTextXY(4,0);
+    SeeedGrayOled.putString("                ");
+    SeeedGrayOled.setTextXY(4,0);   
+    SeeedGrayOled.putString("Module Ready!");
+
+    // OLED display WCDMA factory config state
+    SeeedGrayOled.setTextXY(5,0);
+    SeeedGrayOled.putString("                ");
+    SeeedGrayOled.setTextXY(5,0);
+    SeeedGrayOled.putString("WCDMA: ");
+    WCDMA_Factory_Conf() ? SeeedGrayOled.putString("OK") : SeeedGrayOled.putString("error");;
+
+}   
 
 void loop(){
-  OLEDDisplayGNSS();
-  
-  // Serial print Battery level
-  SerialUSB.print("BAT_C: ");
-  SerialUSB.println(analogRead(BAT_C_PIN));
-  // OLED display Battery level 
-  SeeedGrayOled.setTextXY(9,0);
-  SeeedGrayOled.putString("                ");
-  SeeedGrayOled.putString("BAT_C: ");
-  SeeedGrayOled.putNumber(analogRead(BAT_C_PIN)*3300/2048);
-  SeeedGrayOled.putString(" mV");
+    /* -----------------  Serial OUTPUT---------------------------- */
+    /* -----------------  OLED DISPALY---------------------------- */
+    // Baterry level
+    SerialUSB.print("BAT_C: ");
+    SerialUSB.println(analogRead(BAT_C_PIN));
+    SeeedGrayOled.setTextXY(15,0);
+    SeeedGrayOled.putString("                ");
+    SeeedGrayOled.putString("BAT_C: ");
+    SeeedGrayOled.putNumber(analogRead(BAT_C_PIN)*3300/2048);
+    SeeedGrayOled.putString(" mV");
+
+    getSIMState();
+    getNetWorkStats();
+    getRSSI();
+    getServiceInfo();
+    
+    delay(500);
 }
 
-void OLEDDisplayGNSS()
+bool WCDMA_Factory_Conf()
 {
-  char *p = NULL;
-  uint8_t str_len;
-  uint8_t cur_row = 0;
-  char buffer[128];
-  char GNSSContent[128];
-  
-  send_cmd("AT+QGPSLOC?\r\n");
-  read_buffer(buffer, 128, 2, 2000);  
-  SerialUSB.println(buffer);
-  if(NULL != (p = strstr(buffer, "+QGPSLOC:"))){
-    p += 10;
-    clean_buffer(GNSSContent, 128);
-    uint32_t readTimeStart = millis();
-    uint8_t index = 0;
-    while(*(p++) != '\n'){
-        if(1000 < (millis() - readTimeStart)){
-            SerialUSB.println("Read buffer timeout!");
-            break;
+    bool ret = check_with_cmd("AT+QMBNCFG=\"Deactivate\"\r\n", "OK", CMD, 2, 2000) && 
+               check_with_cmd("AT+QMBNCFG=\"AutoSel\",0\r\n", "OK", CMD, 2, 2000) && 
+               check_with_cmd("at+qnvfw=\"/policyman/rat_mask\",830350000000020085000000E001000021000000000000003C0A000000000000\r\n", "OK", CMD, 2, 2000) && 
+               check_with_cmd("at+qnvfw=\"/nv/item_files/mcfg/mcfg_segload_config\",0100000002000000\r\n", "OK", CMD, 2, 2000) && 
+               check_with_cmd("AT+QNVW=880,0,\"00\"\r\n", "OK", CMD, 2, 2000) && 
+               check_with_cmd("AT+QNVW=881,0,\"00\"\r\n", "OK", CMD, 2, 2000) && 
+               check_with_cmd("AT+QNVW=882,0,\"01\"\r\n", "OK", CMD, 2, 2000) &&
+               check_with_cmd("AT+QNVW=855,0,\"01\"\r\n", "OK", CMD, 2, 2000);
+    return ret;
+}
+
+
+void getSIMState()
+{
+    char *p = NULL;
+    char buf_main_info[16];
+
+    send_cmd("AT+CPIN?\r\n");
+    read_buffer(buffer, 64, 1); 
+    // SerialUSB.println(buffer);
+    if(NULL != (p = strstr(buffer, "+CPIN: "))){
+        p += 6;
+        clean_buffer(buf_main_info, 16);
+        uint32_t readTimeStart = millis();
+        uint8_t index = 0;
+        while(*(p++) != '\n'){
+            if(1000 < (millis() - readTimeStart)){
+                SerialUSB.println("Read buffer timeout!");
+                break;
+            }
+            buf_main_info[index++] = (*p);
         }
-        GNSSContent[index++] = (*p);
-    }    
-    GNSSContent[index--] = '\0';
-    
-    // Serial print GNSS info
-    SerialUSB.print("GNSS: ");
-    SerialUSB.println(GNSSContent); 
-
-    // Clear 4 rows fow displaying GNSS info
-    SeeedGrayOled.setTextXY(0,0);
-    SeeedGrayOled.putString("                ");
-    SeeedGrayOled.setTextXY(1,0);
-    SeeedGrayOled.putString("                ");
-    SeeedGrayOled.setTextXY(2,0);
-    SeeedGrayOled.putString("                ");
-    SeeedGrayOled.setTextXY(3,0);
-    SeeedGrayOled.putString("                ");
-    SeeedGrayOled.setTextXY(4,0);
-    SeeedGrayOled.putString("                "); 
-
-    // OLED display GNSS info
-    SeeedGrayOled.setTextXY(cur_row,0);        
-    SeeedGrayOled.putString("GNSS: ");
-    str_len = strlen(GNSSContent);
-    cur_row += 1;
-    for(uint8_t i = 0; i < str_len; i++){
-      if(0 == (i % 15)){
-        cur_row ++;
-        SeeedGrayOled.setTextXY(cur_row,0);
-      }
-      SeeedGrayOled.putChar(GNSSContent[i]);
+        buf_main_info[index--] = '\0';
+        SerialUSB.print("SIM State: ");
+        SerialUSB.println(buf_main_info); 
+        SeeedGrayOled.setTextXY(0,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(0,0);    
+        SeeedGrayOled.putString("SIMCard: ");
+        SeeedGrayOled.putString(buf_main_info);
     }
-  }
-  else {  // Feedback without content of "+QGPSLOC: "
-    SerialUSB.println("NOT received +QGPSLOC:");
-    SeeedGrayOled.clearDisplay();     //Clear Display
-    SeeedGrayOled.setTextXY(0,0);
-    SeeedGrayOled.putString("GNSS: ");
-    SeeedGrayOled.putString("error!");
-  }
+    else {
+        SerialUSB.println("NOT received +CPIN...");
+        SeeedGrayOled.setTextXY(0,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(0,0);
+        SeeedGrayOled.putString("SIM: ");
+        SeeedGrayOled.putString("error!");
+    }
+
+}
+
+void getNetWorkStats()
+{
+    char *p = NULL;
+    char buf_main_info[16];
+
+    send_cmd("AT+CREG?\r\n");
+    read_buffer(buffer, 64, 1); 
+    // SerialUSB.println(buffer);
+    if(NULL != (p = strstr(buffer, "+CREG:"))){
+        p += 5;
+        clean_buffer(buf_main_info, 16);
+        uint32_t readTimeStart = millis();
+        uint8_t index = 0;
+        while(*(p++) != '\n'){
+            if(1000 < (millis() - readTimeStart)){
+                SerialUSB.println("Read buffer timeout!");
+                break;
+            }
+            buf_main_info[index++] = (*p);
+        }
+        buf_main_info[index--] = '\0';
+        SerialUSB.print("NetWK: ");
+        SerialUSB.println(buf_main_info); 
+        SeeedGrayOled.setTextXY(2,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(2,0);    
+        SeeedGrayOled.putString("NetWK: ");
+        SeeedGrayOled.putString(buf_main_info);
+    }
+    else {
+        SerialUSB.println("NOT received +CREG:...");
+        SeeedGrayOled.setTextXY(2,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(2,0);
+        SeeedGrayOled.putString("NetWK: ");
+        SeeedGrayOled.putString("error!");
+    }
+}
+
+
+
+void getRSSI()
+{
+    char *p = NULL;
+    char buf_main_info[16];
+
+    send_cmd("AT+CSQ\r\n");
+    read_buffer(buffer, 64, 1); 
+    // SerialUSB.println(buffer);
+    if(NULL != (p = strstr(buffer, "+CSQ:"))){
+        p += 5;
+        clean_buffer(buf_main_info, 16);
+        uint32_t readTimeStart = millis();
+        uint8_t index = 0;
+        while(*(p++) != '\n'){
+            if(1000 < (millis() - readTimeStart)){
+                SerialUSB.println("Read buffer timeout!");
+                break;
+            }
+            buf_main_info[index++] = (*p);
+        }
+        buf_main_info[index--] = '\0';
+        SerialUSB.print("SQ State: ");
+        SerialUSB.println(buf_main_info); 
+        SeeedGrayOled.setTextXY(4,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(4,0);    
+        SeeedGrayOled.putString("SQ: ");
+        SeeedGrayOled.putString(buf_main_info);
+    }
+    else {
+        SerialUSB.println("NOT received +CSQ:...");
+        SeeedGrayOled.setTextXY(4,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(4,0);
+        SeeedGrayOled.putString("SQ: ");
+        SeeedGrayOled.putString("error!");
+    }
+}
+
+void getServiceInfo()
+{
+    char *p = NULL;
+    char buf_main_info[64];
+    uint8_t str_len = 0;
+    uint8_t cur_row = 6;
+
+    send_cmd("AT+QNWINFO\r\n");
+    read_buffer(buffer, 64, 1); 
+    // SerialUSB.println(buffer);
+    if(NULL != (p = strstr(buffer, "+QNWINFO:"))){
+        p += 9;
+        clean_buffer(buf_main_info, 16);
+        uint32_t readTimeStart = millis();
+        uint8_t index = 0;
+        while(*(p++) != '\n'){
+            if(1000 < (millis() - readTimeStart)){
+                SerialUSB.println("Read buffer timeout!");
+                break;
+            }
+            buf_main_info[index++] = (*p);
+        }
+        buf_main_info[index--] = '\0';
+        SerialUSB.print("Serv info: ");
+        SerialUSB.println(buf_main_info); 
+        // OLED display
+        SeeedGrayOled.setTextXY(6,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(7,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(8,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(9,0);
+        SeeedGrayOled.putString("                ");
+        str_len = strlen(buf_main_info);
+        SeeedGrayOled.setTextXY(cur_row,0);
+        SeeedGrayOled.putString("Serv Info: ");
+        cur_row += 1;  // Enter new row
+        for(uint8_t i = 0; i < str_len; i++){
+            if(0 == (i % 15)){
+            cur_row ++;
+            SeeedGrayOled.setTextXY(cur_row,0);
+            }
+            SeeedGrayOled.putChar(buf_main_info[i]);
+        }
+    }
+    else {
+        SerialUSB.println("NOT received +QNWINFO:...");
+        SeeedGrayOled.setTextXY(6,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(6,0);
+        SeeedGrayOled.putString("Serv Info: ");
+        SeeedGrayOled.putString("error!");
+    }
 }

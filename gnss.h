@@ -35,12 +35,6 @@
 #include "module_common.h"
 #include "Arduino_Interface.h"
 
-enum GNSS_MDOE{
-    GNSS_DEFAULT_MODE = 0, // Default quick start GNSS mode
-    EPO_QUICK_MODE = 1, // EPO quick mode
-    EPO_LP_MODE = 2, // EPO low power consumption mode
-    EPO_RL_MODE = 3  // Reference-location mode
-};
 
 class GNSS : public WioTracker
 {
@@ -134,30 +128,6 @@ public:
      *
      */    
     bool dataFlowMode(void);
-
-    /* 
-        MTK and PQ commands 
-    */
-    uint8_t getCheckSum(char *string);
-    bool enable_EASY(void);
-    bool enable_GLP(int enable, int save);
-    bool set_DGPS_Mode();
-
-    bool getQueryStatus_LOCUS(void);
-    bool eraseFlash_LOCUS(void);
-    bool stopLogger_LOCUS(int status);
-    bool queryData_LOCUS(void);
-    bool setPeriodicMode();
-    bool set1PPS(bool status);
-    bool setAlwaysLocateMode(int mode);
-
-    bool select_searching_satellite(int gps, int beidou);
-
-    bool setWorkMode(int mode);
-    bool setStandbyMode(int mode);
-    /* 
-        End of MTK and PQ commands
-    */
 };
 
 #endif
