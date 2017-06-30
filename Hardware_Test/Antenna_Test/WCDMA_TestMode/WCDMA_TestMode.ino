@@ -238,8 +238,8 @@ bool WCDMA_Factory_Conf()
                check_with_cmd("at+qnvfw=\"/nv/item_files/mcfg/mcfg_segload_config\",0100000002000000\r\n", "OK", CMD, 2, 2000) && 
                check_with_cmd("AT+QNVW=880,0,\"00\"\r\n", "OK", CMD, 2, 2000) && 
                check_with_cmd("AT+QNVW=881,0,\"00\"\r\n", "OK", CMD, 2, 2000) && 
-               check_with_cmd("AT+QNVW=882,0,\"01\"\r\n", "OK", CMD, 2, 2000) &&
-               check_with_cmd("AT+QNVW=855,0,\"01\"\r\n", "OK", CMD, 2, 2000);
+               check_with_cmd("AT+QNVW=882,0,\"01\"\r\n", "OK", CMD, 2, 2000);// &&
+            //    check_with_cmd("AT+QNVW=855,0,\"01\"\r\n", "OK", CMD, 2, 2000);
     return ret;
 }
 
