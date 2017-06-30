@@ -4,12 +4,14 @@
 #include <SeeedGrayOLED.h>
 #include <avr/pgmspace.h>
 #include "drawBit.h"
+#include "gnss.h"
 
+char buffer[128];
 const int BAT_C_PIN = 16;
 static long TTS_StartTime = 0;
 
 WioTracker wio = WioTracker();
-
+GNSS gnss = GNSS();
 
 void setDisplayToOriginalState()
 {
@@ -35,18 +37,33 @@ void setup(){
 	}  
     SerialUSB.println("Power On O.K!");
 
+    // Open GNSS
+    if(!gnss.open_GNSS()) {
+    SerialUSB.println("\n\rGNSS init failed!");
+        return;
+    }
+    SerialUSB.println("Open GNSS OK.");
+    delay(1000);
+
     // Init ADC Pin
-    pinMode(4, INPUT_ANALOG);
-    pinMode(5, INPUT_ANALOG);
-    pinMode(6, INPUT_ANALOG);
-    pinMode(7, INPUT_ANALOG);
+    // pinMode(4, INPUT_ANALOG);
+    // pinMode(5, INPUT_ANALOG);
+    // pinMode(6, INPUT_ANALOG);
+    // pinMode(7, INPUT_ANALOG);
     pinMode(BAT_C_PIN, INPUT_ANALOG);
 
     // Init Grove digital Pins
+    pinMode(4, OUTPUT);
+    pinMode(5, OUTPUT);
+    pinMode(6, OUTPUT);
+    pinMode(7, OUTPUT);
     pinMode(19, OUTPUT);
     pinMode(20, OUTPUT);
     pinMode(38, OUTPUT);
     pinMode(39, OUTPUT);
+    pinMode(22, OUTPUT);
+    pinMode(23, OUTPUT);
+
     
     // OELD init
     Wire.begin();
@@ -60,8 +77,8 @@ void setup(){
     setDisplayToOriginalState();  
 	SeeedGrayOled.clearDisplay();
 	//Draw binary Bitmap
-	SeeedGrayOled.drawBitmap(image1,128*128/8);
-    SeeedGrayOled.drawBitmap(image2,128*128/8);
+	// SeeedGrayOled.drawBitmap(image1,128*128/8);
+    // SeeedGrayOled.drawBitmap(image2,128*128/8);
     SeeedGrayOled.drawBitmap(SeeedLogo,128*128/8);
     SeeedGrayOled.drawBitmap(wioTracker,128*128/8);
     delay(1000);
@@ -81,10 +98,16 @@ void loop(){
     static int pinState = 1;
     pinState ^= 1;
 
+    digitalWrite(4, pinState);
+    digitalWrite(5, pinState);
+    digitalWrite(6, pinState);
+    digitalWrite(7, pinState);
     digitalWrite(19, pinState);
     digitalWrite(20, pinState);
     digitalWrite(38, pinState);
     digitalWrite(39, pinState);
+    digitalWrite(22, pinState);
+    digitalWrite(23, pinState);
 
     // ADC Read Loop
     SerialUSB.print("ADC4~7: ");
@@ -99,32 +122,118 @@ void loop(){
     SerialUSB.println(analogRead(BAT_C_PIN));
 
     // OELD Display ADC 
-    SeeedGrayOled.setTextXY(5,0);
+    SeeedGrayOled.setTextXY(0,0);
     SeeedGrayOled.putString("                ");
     SeeedGrayOled.putString("AIN4: ");
     SeeedGrayOled.putNumber(analogRead(4));
-    SeeedGrayOled.setTextXY(6,0);
+    SeeedGrayOled.setTextXY(1,0);
     SeeedGrayOled.putString("                ");
     SeeedGrayOled.putString("AIN5: ");
     SeeedGrayOled.putNumber(analogRead(5));
-    SeeedGrayOled.setTextXY(7,0);
+    SeeedGrayOled.setTextXY(2,0);
     SeeedGrayOled.putString("                ");
     SeeedGrayOled.putString("AIN6: ");
     SeeedGrayOled.putNumber(analogRead(6));
-    SeeedGrayOled.setTextXY(8,0);
+    SeeedGrayOled.setTextXY(3,0);
     SeeedGrayOled.putString("                ");
     SeeedGrayOled.putString("AIN7: ");
     SeeedGrayOled.putNumber(analogRead(7));
-    SeeedGrayOled.setTextXY(9,0);
+    SeeedGrayOled.setTextXY(4,0);
     SeeedGrayOled.putString("                ");
     SeeedGrayOled.putString("BAT_C: ");
     SeeedGrayOled.putNumber(analogRead(BAT_C_PIN)*3300/2048);
     SeeedGrayOled.putString(" mV");
 
     // Codec test
-    if(4000 < (millis() - TTS_StartTime)){
+    if(5000 < (millis() - TTS_StartTime)){
         TTS_StartTime = millis();
-        check_with_cmd("AT+QTTS=1, \"6B228FCE4F7F752879FB8FDC6A215757\"\r\n", "OK", CMD, 4, 2000, true);
+        check_with_cmd("AT+QTTS=1, \"6B228FCE4F7F752879FB8FDC6A215757\"\r\n", "+QTTS", CMD, 4, 2000, false);
+        delay(2000);
     }
-    delay(500);
+    
+    // SIM state
+    getSIMState();
+
+    // GNSS
+    OLEDDisplayGNSS();
+
+    SerialUSB.println("*************************");
+    SerialUSB.println("*************************");
+    SerialUSB.println("");
+    SerialUSB.println("");
+
+}
+
+void getSIMState()
+{
+    char *p = NULL;
+    char buf_main_info[128];
+    
+    send_cmd("AT+CPIN?\r\n");
+    read_buffer(buffer, 128, 1); 
+    // SerialUSB.println(buffer);
+    if(NULL != (p = strstr(buffer, "+CPIN: "))){
+        p += 6;
+        clean_buffer(buf_main_info, 128);
+        uint32_t readTimeStart = millis();
+        uint8_t index = 0;
+        while(*(p++) != '\n'){
+            if(1000 < (millis() - readTimeStart)){
+                SerialUSB.println("Read buffer timeout!");
+                break;
+            }
+            buf_main_info[index++] = (*p);
+        }
+        buf_main_info[index--] = '\0';
+        SerialUSB.print("SIM State: ");
+        SerialUSB.println(buf_main_info); 
+        SeeedGrayOled.setTextXY(5,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(5,0);    
+        SeeedGrayOled.putString("SIMCard: ");
+        SeeedGrayOled.putString(buf_main_info);
+    }
+    else {
+        SerialUSB.println("NOT received +CPIN...");
+        SeeedGrayOled.setTextXY(5,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(5,0);
+        SeeedGrayOled.putString("SIM: ");
+        SeeedGrayOled.putString("error!");
+    }
+}
+
+
+//GNSS display
+void OLEDDisplayGNSS()
+{
+    if(gnss.getCoordinate()) {
+        SerialUSB.print(gnss.str_longitude);
+        SerialUSB.print(gnss.West_or_East);
+        SerialUSB.print(' , ');
+        SerialUSB.print(gnss.str_latitude);
+        SerialUSB.println(gnss.North_or_South);
+        // Clear 4 rows fow displaying GNSS info
+        SeeedGrayOled.setTextXY(6,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(7,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(8,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(6,0);   
+        SeeedGrayOled.putString("GNSS: ");
+        SeeedGrayOled.setTextXY(7,0);
+        SeeedGrayOled.putString(gnss.str_longitude);
+        SeeedGrayOled.putString(gnss.North_or_South);
+        SeeedGrayOled.setTextXY(8,0);
+        SeeedGrayOled.putString(gnss.str_latitude);
+        SeeedGrayOled.putString(gnss.West_or_East);
+    } else {  
+        // Feedback without content of "+QGPSLOC: "
+        SerialUSB.println("NOT received +QGPSLOC:");
+        SeeedGrayOled.setTextXY(6,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(6,0);
+        SeeedGrayOled.putString("GNSS: error!");
+    }
 }
