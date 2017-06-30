@@ -34,7 +34,7 @@
 
 #include "module_common.h"
 #include "Arduino_Interface.h"
-
+#include "stdio.h"
 
 class GNSS : public WioTracker
 {
