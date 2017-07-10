@@ -206,7 +206,7 @@ void OLEDDisplayGNSS()
     if(gnss.getCoordinate()) {
         SerialUSB.print(gnss.str_longitude);
         SerialUSB.print(gnss.West_or_East);
-        SerialUSB.print(' , ');
+        SerialUSB.print(" , ");
         SerialUSB.print(gnss.str_latitude);
         SerialUSB.println(gnss.North_or_South);
         // Clear 4 rows fow displaying GNSS info
@@ -220,10 +220,10 @@ void OLEDDisplayGNSS()
         SeeedGrayOled.putString("GNSS: ");
         SeeedGrayOled.setTextXY(7,0);
         SeeedGrayOled.putString(gnss.str_longitude);
-        SeeedGrayOled.putString(gnss.North_or_South);
+        SeeedGrayOled.putString(gnss.West_or_East);
         SeeedGrayOled.setTextXY(8,0);
         SeeedGrayOled.putString(gnss.str_latitude);
-        SeeedGrayOled.putString(gnss.West_or_East);
+        SeeedGrayOled.putString(gnss.North_or_South);
     } else {  
         // Feedback without content of "+QGPSLOC: "
         SerialUSB.println("NOT received +QGPSLOC:");
