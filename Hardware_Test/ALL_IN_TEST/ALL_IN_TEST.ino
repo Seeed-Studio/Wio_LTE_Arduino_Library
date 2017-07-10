@@ -206,7 +206,7 @@ void OLEDDisplayGNSS()
     if(gnss.getCoordinate()) {
         SerialUSB.print(gnss.str_longitude);
         SerialUSB.print(gnss.West_or_East);
-        SerialUSB.print(' , ');
+        SerialUSB.print(" , ");
         SerialUSB.print(gnss.str_latitude);
         SerialUSB.println(gnss.North_or_South);
         // Clear 4 rows fow displaying GNSS info
