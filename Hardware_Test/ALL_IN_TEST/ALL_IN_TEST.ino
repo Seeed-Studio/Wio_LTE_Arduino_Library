@@ -26,10 +26,10 @@ void setup(){
     pinMode(wio.ENABLE_VCCB_PIN, OUTPUT);
     digitalWrite(wio.ENABLE_VCCB_PIN, HIGH);
 
-    // Serial port init
+    // 初始化Grove口串口
 	Serial.begin(115200);  // Grove UART
 	
-	// Module power on
+	// 模组 POWER_KEY 开机 
 	wio.Power_On();
 	while(false == wio.Check_If_Power_On()){
 		SerialUSB.println("Waitting for module to alvie...");
@@ -37,7 +37,7 @@ void setup(){
 	}  
     SerialUSB.println("Power On O.K!");
 
-    // Open GNSS
+    // 打开GPS
     if(!gnss.open_GNSS()) {
     SerialUSB.println("\n\rGNSS init failed!");
         return;
@@ -50,9 +50,9 @@ void setup(){
     // pinMode(5, INPUT_ANALOG);
     // pinMode(6, INPUT_ANALOG);
     // pinMode(7, INPUT_ANALOG);
-    pinMode(BAT_C_PIN, INPUT_ANALOG);
+    pinMode(BAT_C_PIN, INPUT_ANALOG);  // 电池电压模拟引脚
 
-    // Init Grove digital Pins
+    // GPIO 引脚初始化
     pinMode(4, OUTPUT);
     pinMode(5, OUTPUT);
     pinMode(6, OUTPUT);
@@ -65,7 +65,7 @@ void setup(){
     pinMode(23, OUTPUT);
 
     
-    // OELD init
+    // OELD 初始化
     Wire.begin();
     SeeedGrayOled.init();
 
@@ -76,10 +76,6 @@ void setup(){
     // Draw image on OELD
     setDisplayToOriginalState();  
 	SeeedGrayOled.clearDisplay();
-	//Draw binary Bitmap
-	// SeeedGrayOled.drawBitmap(image1,128*128/8);
-    // SeeedGrayOled.drawBitmap(image2,128*128/8);
-    SeeedGrayOled.drawBitmap(SeeedLogo,128*128/8);
     SeeedGrayOled.drawBitmap(wioTracker,128*128/8);
     delay(1000);
     SeeedGrayOled.clearDisplay();     //Clear Display.

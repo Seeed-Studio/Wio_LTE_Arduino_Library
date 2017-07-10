@@ -227,9 +227,10 @@ void loop(){
     getNetWorkStats();
     getRSSI();
     getServiceInfo();
-    
+    // check_with_cmd("AT+QTTS=1, \"6B228FCE4F7F752879FB8FDC6A215757\"\r\n", "+QTTS", CMD, 4, 2000, false);
+    // OLEDDisplayGNSS();
 
-    delay(500);
+    delay(4000);
 }
 
 
@@ -406,5 +407,39 @@ void getServiceInfo()
         SeeedGrayOled.setTextXY(6,0);
         SeeedGrayOled.putString("Serv Info: ");
         SeeedGrayOled.putString("error!");
+    }
+}
+
+//GNSS display
+void OLEDDisplayGNSS()
+{
+    if(gnss.getCoordinate()) {
+        SerialUSB.print(gnss.str_longitude);
+        SerialUSB.print(gnss.West_or_East);
+        SerialUSB.print(' , ');
+        SerialUSB.print(gnss.str_latitude);
+        SerialUSB.println(gnss.North_or_South);
+        // Clear 4 rows fow displaying GNSS info
+        SeeedGrayOled.setTextXY(9,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(10,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(11,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(9,0);   
+        SeeedGrayOled.putString("GNSS: ");
+        SeeedGrayOled.setTextXY(7,0);
+        SeeedGrayOled.putString(gnss.str_longitude);
+        SeeedGrayOled.putString(gnss.North_or_South);
+        SeeedGrayOled.setTextXY(8,0);
+        SeeedGrayOled.putString(gnss.str_latitude);
+        SeeedGrayOled.putString(gnss.West_or_East);
+    } else {  
+        // Feedback without content of "+QGPSLOC: "
+        SerialUSB.println("NOT received +QGPSLOC:");
+        SeeedGrayOled.setTextXY(9,0);
+        SeeedGrayOled.putString("                ");
+        SeeedGrayOled.setTextXY(9,0);
+        SeeedGrayOled.putString("GNSS: error!");
     }
 }
