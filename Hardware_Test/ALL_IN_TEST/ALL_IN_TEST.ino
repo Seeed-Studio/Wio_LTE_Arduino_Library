@@ -93,7 +93,7 @@ void loop(){
     // GPIO Blink Loop
     static int pinState = 1;
     pinState ^= 1;
-
+    SerialUSB.println("(1) GPIO Blink ");
     digitalWrite(4, pinState);
     digitalWrite(5, pinState);
     digitalWrite(6, pinState);
@@ -106,6 +106,7 @@ void loop(){
     digitalWrite(23, pinState);
 
     // ADC Read Loop
+    SerialUSB.print("(2) ");
     SerialUSB.print("ADC4~7: ");
     SerialUSB.print(analogRead(4));
     SerialUSB.print(" ");
@@ -114,6 +115,7 @@ void loop(){
     SerialUSB.print(analogRead(6));
     SerialUSB.print(" ");
     SerialUSB.println(analogRead(7));
+    SerialUSB.print("(3) ");
     SerialUSB.print("BAT_C: ");
     SerialUSB.println(analogRead(BAT_C_PIN));
 
@@ -154,9 +156,6 @@ void loop(){
     OLEDDisplayGNSS();
 
     SerialUSB.println("*************************");
-    SerialUSB.println("*************************");
-    SerialUSB.println("");
-    SerialUSB.println("");
 
 }
 
@@ -168,20 +167,21 @@ void getSIMState()
     send_cmd("AT+CPIN?\r\n");
     read_buffer(buffer, 128, 1); 
     // SerialUSB.println(buffer);
+    SerialUSB.print("(4) ");
+    SerialUSB.print("SIM State: ");
     if(NULL != (p = strstr(buffer, "+CPIN: "))){
         p += 6;
         clean_buffer(buf_main_info, 128);
         uint32_t readTimeStart = millis();
         uint8_t index = 0;
-        while(*(p++) != '\n'){
+        while(*(p) != '\n'){
             if(1000 < (millis() - readTimeStart)){
                 SerialUSB.println("Read buffer timeout!");
                 break;
             }
-            buf_main_info[index++] = (*p);
+            buf_main_info[index++] = *(p++);
         }
-        buf_main_info[index--] = '\0';
-        SerialUSB.print("SIM State: ");
+        buf_main_info[index-1] = '\0';
         SerialUSB.println(buf_main_info); 
         SeeedGrayOled.setTextXY(5,0);
         SeeedGrayOled.putString("                ");
@@ -203,6 +203,7 @@ void getSIMState()
 //GNSS display
 void OLEDDisplayGNSS()
 {
+    SerialUSB.print("(5) GNSS: ");
     if(gnss.getCoordinate()) {
         SerialUSB.print(gnss.str_longitude);
         SerialUSB.print(gnss.West_or_East);

@@ -85,14 +85,14 @@ bool GNSS::getCoordinate(void)
     clean_buffer(buffer, 128);
     send_cmd("AT+QGPSLOC?\r\n");
     read_buffer(buffer, 128, 2);
-    SerialUSB.println(buffer);
-    if(NULL != strstr("+CME ERROR:", buffer))
+    // SerialUSB.println(buffer);
+    if(NULL != (p = strstr(buffer, "+CME ERROR")))
     {
       return false;
     }
 
     // +QGPSLOC: 084757.700,2235.0272N,11357.9730E,1.6,40.0,3,171.43,0.0,0.0,290617,10    
-    if(NULL != (p = strstr(buffer, "+QGPSLOC:")))
+    else if(NULL != (p = strstr(buffer, "+QGPSLOC:")))
     {
       p += 10;      
       p = strtok(buffer, ","); // time

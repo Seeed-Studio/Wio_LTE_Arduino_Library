@@ -8,7 +8,7 @@
 
 
 void setup() {
-  SerialUSB.begin(115200);
+  // SerialUSB.begin(115200);
   // delay(5000);
   SerialUSB.println("Begin...");
 
@@ -23,7 +23,7 @@ void setup() {
   // SerialUSB.println("Power On O.K!");
   // delay(1000);
   // SerialUSB.println("Power On O.K!");
-  // delay(1000);
+  delay(4000);
   SerialUSB.println("Enter standby mode!");
   delay(1000);
   pwr_init();
@@ -47,7 +47,7 @@ void loop() {
 
 void peripheral_standby(){
   for(int i = 0; i < 63; i++){
-    pinMode(i, INPUT_ANALOG);
+    pinMode(i, INPUT);
   }
 }
 
