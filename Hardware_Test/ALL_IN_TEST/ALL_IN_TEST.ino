@@ -24,7 +24,7 @@ void setup(){
     digitalWrite(wio.MODULE_PWR_PIN , HIGH);    
     // Enable VCCB
     pinMode(wio.ENABLE_VCCB_PIN, OUTPUT);
-    digitalWrite(wio.ENABLE_VCCB_PIN, HIGH);
+    digitalWrite(wio.ENABLE_VCCB_PIN, HIGH); 
 
     // 初始化Grove口串口
 	Serial.begin(115200);  // Grove UART
@@ -120,6 +120,7 @@ void loop(){
     SerialUSB.println(analogRead(BAT_C_PIN));
 
     // OELD Display ADC 
+#if 0    
     SeeedGrayOled.setTextXY(0,0);
     SeeedGrayOled.putString("                ");
     SeeedGrayOled.putString("AIN4: ");
@@ -136,6 +137,7 @@ void loop(){
     SeeedGrayOled.putString("                ");
     SeeedGrayOled.putString("AIN7: ");
     SeeedGrayOled.putNumber(analogRead(7));
+#endif    
     SeeedGrayOled.setTextXY(4,0);
     SeeedGrayOled.putString("                ");
     SeeedGrayOled.putString("BAT_C: ");

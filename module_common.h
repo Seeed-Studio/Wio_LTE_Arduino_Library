@@ -34,6 +34,8 @@
 
 #include "Arduino_Interface.h"
 
+#define WIO_TRACKER_LTE_V12
+
 /** WioTracker class.
  *  used to realize WioTracker communication
  */ 
@@ -196,16 +198,33 @@ public:
 // private:
     bool checkSIMStatus(void);
     
-    const int ENABLE_VCCB_PIN   = 26;
-    const int MODULE_PWR_PIN    = 18;
-    const int PWR_KEY_PIN       = 36;
-    const int ANT_PWR_PIN       = 28;
+    #ifdef WIO_TRACKER_LTE_V11
+    const int ENABLE_VCCB_PIN   = 26;  // PB10    
+    const int MODULE_PWR_PIN    = 18;  // PB2
+    const int PWR_KEY_PIN       = 36;  // PC4 
+    const int ANT_PWR_PIN       = 28;  // PB12
 
-    const int WAKEUP_IN_PIN      = 32;
-    const int AP_READY_PIN       = 33;
-    const int WAKEUP_DISABLE_PIN = 34;
-    const int RESET_MODULE_PIN   = 35;
-    const int STATUS_PIN         = 31;
-    const int RGB_LED_PIN        = 17;
+    const int WAKEUP_IN_PIN      = 32; // PC0
+    const int AP_READY_PIN       = 33; // PC1
+    const int WAKEUP_DISABLE_PIN = 34; // PC2
+    const int RESET_MODULE_PIN   = 35; // PC3
+    const int STATUS_PIN         = 31; // PB15
+    const int RGB_LED_PIN        = 17; // PB1    
+
+    #elif defined WIO_TRACKER_LTE_V12  
+    const int SD_PWR_PIN        = 15;  // PA15
+    const int ENABLE_VCCB_PIN   = 26;  // PB10 
+    const int MODULE_PWR_PIN    = 21;  // PB2
+    const int PWR_KEY_PIN       = 36;  // PC4 
+    const int ANT_PWR_PIN       = 28;  // PB12
+
+    const int WAKEUP_IN_PIN      = 32; // PC0
+    const int AP_READY_PIN       = 33; // PC1
+    const int WAKEUP_DISABLE_PIN = 34; // PC2
+    const int RESET_MODULE_PIN   = 35; // PC3
+    const int STATUS_PIN         = 31; // PB15
+    const int RGB_LED_PIN        = 17; // PB1
+
+    #endif
 };
 #endif
