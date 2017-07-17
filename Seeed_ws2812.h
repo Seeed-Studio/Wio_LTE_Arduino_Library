@@ -52,7 +52,7 @@ class WS2812 {
 		void WS2812SetHSV(uint32_t led, uint32_t hue, 
 							uint32_t saturation, uint32_t value);
         void rainbowCycle(uint8_t wait);
-		uint32_t colorWheel(byte WheelPos, uint8_t n);
+		void colorWheel(byte WheelPos, uint8_t n);
 		void RGBCycle(uint16_t);
 		
 		uint8_t sigPin;

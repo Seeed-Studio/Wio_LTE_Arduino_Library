@@ -200,7 +200,7 @@ public:
     
     #ifdef WIO_TRACKER_LTE_V11
     const int ENABLE_VCCB_PIN   = 26;  // PB10    
-    const int MODULE_PWR_PIN    = 18;  // PB2
+    const int MODULE_PWR_PIN    = 18;  // PB5
     const int PWR_KEY_PIN       = 36;  // PC4 
     const int ANT_PWR_PIN       = 28;  // PB12
 
@@ -214,8 +214,9 @@ public:
     #elif defined WIO_TRACKER_LTE_V12  
     const int SD_PWR_PIN        = 15;  // PA15
     const int ENABLE_VCCB_PIN   = 26;  // PB10 
-    const int MODULE_PWR_PIN    = 21;  // PB2
+    const int MODULE_PWR_PIN    = 21;  // PB5
     const int PWR_KEY_PIN       = 36;  // PC4 
+    const int CODEC_I2C_PWR_PIN = 37;  // PC5 
     const int ANT_PWR_PIN       = 28;  // PB12
 
     const int WAKEUP_IN_PIN      = 32; // PC0

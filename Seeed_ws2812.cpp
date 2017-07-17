@@ -71,7 +71,7 @@ void WS2812::setLedNum(uint32_t lednum) {
 }
 
 void WS2812::WS2812Clear(void) {
-	int i;
+	uint32_t i;
 	for(i = 0; i < ledNum*3; i++) WS2812Buffer[i] = 0;
 	WS2812Send();
 }
@@ -79,17 +79,17 @@ void WS2812::WS2812Clear(void) {
 void WS2812::pureColor(uint8_t mode) {
 	switch ( mode ) {
     case 0:
-		for ( int i=0; i<ledNum; i++ ) {
+		for ( uint32_t i=0; i<ledNum; i++ ) {
 			WS2812SetRGB(i, 0, 0, 255, brightness);
 		}
 		break;
     case 1:
-		for ( int i=0; i<ledNum; i++ ) {
+		for ( uint32_t i=0; i<ledNum; i++ ) {
 			WS2812SetRGB(i, 0, 255, 0, brightness);
 		}
 		break;
     case 2:
-		for ( int i=0; i<ledNum; i++ ) {
+		for ( uint32_t i=0; i<ledNum; i++ ) {
 			WS2812SetRGB(i, 255, 0, 0, brightness);
 		}
 		break;   
@@ -212,7 +212,7 @@ void WS2812::rainbowCycle(uint8_t wait) {
   }
 }
 
-uint32_t WS2812::colorWheel(byte WheelPos, uint8_t n) {
+void WS2812::colorWheel(byte WheelPos, uint8_t n) {
   if(WheelPos < 85) {
      WS2812SetRGB(n, 0, WheelPos * 3, 255 - WheelPos * 3, brightness);     
   } else if(WheelPos < 170) {
@@ -225,17 +225,17 @@ uint32_t WS2812::colorWheel(byte WheelPos, uint8_t n) {
 }	
 
 void WS2812::RGBCycle(uint16_t wait_ms) {
-	for ( int i=0; i<ledNum; i++ ) {
+	for ( uint32_t i=0; i<ledNum; i++ ) {
 			WS2812SetRGB(i, 0, 0, 255, brightness);
 	}
 	WS2812Send();
 	delay(wait_ms);
-	for ( int i=0; i<ledNum; i++ ) {
+	for ( uint32_t i=0; i<ledNum; i++ ) {
 			WS2812SetRGB(i, 0, 255, 0, brightness);
 	}
 	WS2812Send();
 	delay(wait_ms);
-	for ( int i=0; i<ledNum; i++ ) {
+	for ( uint32_t i=0; i<ledNum; i++ ) {
 			WS2812SetRGB(i, 255, 0, 0, brightness);
 	}
 	WS2812Send();

@@ -75,8 +75,6 @@ bool GNSS::open_GNSS(void)
 
 bool GNSS::getCoordinate(void)
 {
-    int i = 0;
-    int j = 0;
     int tmp = 0;
     char *p = NULL;
     uint8_t str_len = 0;
