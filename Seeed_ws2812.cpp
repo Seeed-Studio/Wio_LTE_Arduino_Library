@@ -32,21 +32,25 @@
 #include "Seeed_ws2812.h"
 #include <arduino.h>
 
-#define STM32F40xx
+#define STM32F40xx (1)
 
 #define nop() __asm__ __volatile__ ("nop")
-#define _DELAY_NOP(x) for(int i=0; i<x; i++){nop();}	
+#define _DELAY_NOP(x)  for(uint32_t i = 0; i < x; i++){nop();}
 
-#ifdef STM32F40xx
-#define _0_CODE(pin)  digitalWrite(pin, HIGH); \
-				_DELAY_NOP(21) \
-				digitalWrite(pin, LOW); \
-				_DELAY_NOP(20)
+#if(STM32F40xx == 1)
+#define PARTEN_0_CODE(pin)  do{ \
+								digitalWrite(pin, HIGH); \
+								_DELAY_NOP(21) \
+								digitalWrite(pin, LOW); \
+								_DELAY_NOP(20) \
+							} while(0)
 
-#define _1_CODE(pin) digitalWrite(pin, HIGH); \
-				_DELAY_NOP(8) \
-				digitalWrite(pin, LOW); \
-				_DELAY_NOP(25)
+#define PARTEN_1_CODE(pin) do{ \
+								digitalWrite(pin, HIGH); \
+								_DELAY_NOP(8) \
+								digitalWrite(pin, LOW); \
+								_DELAY_NOP(25) \
+						   } while(0)
 #endif
 
 WS2812::WS2812(uint32_t ledn, uint8_t pin) {
@@ -188,12 +192,12 @@ void WS2812::WS2812Send(void) {
 			// 1 code
 			if(WS2812Buffer[c] & (1<<b))
 			{
-				_0_CODE(sigPin)
+				PARTEN_0_CODE(sigPin);
 			} 
 			// 0 code
 			else
 			{
-				_1_CODE(sigPin)
+				PARTEN_1_CODE(sigPin);
 			}		
 		}		
 	}

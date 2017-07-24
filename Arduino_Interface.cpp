@@ -37,6 +37,16 @@ void  serialPort_init()
     MODULE_PORT.begin(115200);
 }
 
+void AT_bypass()
+{
+    while(MODULE_PORT.available()){
+        serialDebug.write(MODULE_PORT.read());
+    }
+    while(SerialUSB.available()){
+        MODULE_PORT.write(SerialUSB.read());
+    }
+}
+
 int check_readable()
 {
     return MODULE_PORT.available();

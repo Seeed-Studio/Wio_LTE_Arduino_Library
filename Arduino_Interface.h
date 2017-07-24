@@ -33,6 +33,7 @@
 #define __ARDUINO_INTERFACE_H__
 
 #include <Arduino.h>
+#include <board_config.h>
 
 #define MODULE_PORT Serial1   // UART2
 #define serialDebug SerialUSB
@@ -40,7 +41,7 @@
 #define DEFAULT_TIMEOUT              5   //seconds
 #define DEFAULT_INTERCHAR_TIMEOUT 3000   //miliseconds
 
-#define UART_DEBUG true
+
 
 #ifdef UART_DEBUG
 #define ERROR(x)            SerialUSB.println(x)
@@ -56,6 +57,7 @@ enum DataType {
 };
 
 void  serialPort_init();
+void  AT_bypass();
 int   check_readable();
 int   wait_readable(int wait_time);
 void  flush_serial();
@@ -71,5 +73,4 @@ void  send_End_Mark(void);
 boolean wait_for_resp(const char* resp, DataType type, unsigned int timeout = DEFAULT_TIMEOUT, unsigned int chartimeout = DEFAULT_INTERCHAR_TIMEOUT, bool debug=false);
 boolean  check_with_cmd(const char* cmd, const char *resp, DataType type, unsigned int timeout = DEFAULT_TIMEOUT, unsigned int chartimeout = DEFAULT_INTERCHAR_TIMEOUT*5, bool debug=false);
 boolean  check_with_cmd(const __FlashStringHelper* cmd, const char *resp, DataType type, unsigned int timeout = DEFAULT_TIMEOUT, unsigned int chartimeout = DEFAULT_INTERCHAR_TIMEOUT, bool debug=false);
-
 #endif

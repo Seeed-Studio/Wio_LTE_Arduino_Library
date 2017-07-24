@@ -19,12 +19,12 @@ void setDisplayToOriginalState()
 }
 
 void setup(){
-    // Enable Module Power
-    pinMode(wio.MODULE_PWR_PIN, OUTPUT);
-    digitalWrite(wio.MODULE_PWR_PIN , HIGH);    
-    // Enable VCCB
-    pinMode(wio.ENABLE_VCCB_PIN, OUTPUT);
-    digitalWrite(wio.ENABLE_VCCB_PIN, HIGH); 
+    // // Enable Module Power
+    // pinMode(wio.MODULE_PWR_PIN, OUTPUT);
+    // digitalWrite(wio.MODULE_PWR_PIN , HIGH);    
+    // // Enable VCCB
+    // pinMode(wio.ENABLE_VCCB_PIN, OUTPUT);
+    // digitalWrite(wio.ENABLE_VCCB_PIN, HIGH); 
 
     // 初始化Grove口串口
 	Serial.begin(115200);  // Grove UART

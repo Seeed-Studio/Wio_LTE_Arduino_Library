@@ -33,8 +33,8 @@
 #define __MODULE_COMMON_H__
 
 #include "Arduino_Interface.h"
-
-#define WIO_TRACKER_LTE_V12
+#include "itoa.h"
+#include "board_config.h"
 
 /** WioTracker class.
  *  used to realize WioTracker communication
@@ -112,6 +112,20 @@ public:
      */
     bool sendSMS(char* number, char* data);
     
+    /** Set all REC UNREAD SMS to REC READ
+     *  @returns
+     *      true on success
+     *      false on error
+     */
+    bool readAllRecUnreadSMS(void);
+
+    /** Detect REC UNREAD SMS 
+     *  @returns
+     *      -1 on no REC UNREAD SMS detected
+     *      index of REC UNREAD SMS detected
+     */
+    int16_t detectRecUnreadSMS(void);
+
     /** read SMS, phone and date if getting a SMS message. It changes SMS status to READ 
      *  @param  messageIndex  SIM position to read
      *  @param  message  buffer used to get SMS message
@@ -198,9 +212,9 @@ public:
 // private:
     bool checkSIMStatus(void);
     
-    #ifdef WIO_TRACKER_LTE_V11
+    #if (1 == WIO_TRACKER_LTE_V11)
     const int ENABLE_VCCB_PIN   = 26;  // PB10    
-    const int MODULE_PWR_PIN    = 18;  // PB5
+    const int MODULE_PWR_PIN    = 18;  // PB2
     const int PWR_KEY_PIN       = 36;  // PC4 
     const int ANT_PWR_PIN       = 28;  // PB12
 
@@ -211,7 +225,7 @@ public:
     const int STATUS_PIN         = 31; // PB15
     const int RGB_LED_PIN        = 17; // PB1    
 
-    #elif defined WIO_TRACKER_LTE_V12  
+    #elif (1 == WIO_TRACKER_LTE_V12) 
     const int SD_PWR_PIN        = 15;  // PA15
     const int ENABLE_VCCB_PIN   = 26;  // PB10 
     const int MODULE_PWR_PIN    = 21;  // PB5

@@ -34,10 +34,16 @@
 
 // WioTracker* WioTracker::inst;
 
+void Peripherial_Init(){
+    for(int i=0; i<64;  i++){
+        pinMode(i, INPUT);
+    }
+}
+
 WioTracker::WioTracker()
 {
-
-}
+    Peripherial_Init();
+}   
 
 bool WioTracker::init(void)
 {
@@ -70,19 +76,36 @@ void WioTracker::Power_On(void)
   if(Check_If_Power_On()){
     return;
   }    
+#if((1 == WIO_TRACKER_LTE_V12) && (CODEC_PWR_ON == 1))
+    pinMode(CODEC_I2C_PWR_PIN, OUTPUT);
+    digitalWrite(CODEC_I2C_PWR_PIN, HIGH);
+#endif
+
+// #if(1 == MODULE_PWR_ON)
+#if 0
   pinMode(MODULE_PWR_PIN, OUTPUT);
+  digitalWrite(MODULE_PWR_PIN, HIGH);     // Module Power Default HIGH
+#endif 
+
+#if(1 == GROVE_PWR_ON)
   pinMode(ENABLE_VCCB_PIN, OUTPUT);
-  digitalWrite(MODULE_PWR_PIN, HIGH);
+  digitalWrite(ENABLE_VCCB_PIN, HIGH);    // VCC_B Enable pin
+#endif
+
+#if(1==ANTENNA_PWR_ON)  
   pinMode(ANT_PWR_PIN, OUTPUT);
+  digitalWrite(ANT_PWR_PIN, HIGH);     // antenna power enable
   // pinMode(RESET_MODULE_PIN, OUTPUT);
+ #endif
+
   pinMode(WAKEUP_IN_PIN, OUTPUT);
   pinMode(STATUS_PIN, INPUT);
 
-  digitalWrite(ANT_PWR_PIN, HIGH);     // antenna power enable
+  
   // digitalWrite(PWR_KEY_PIN, HIGH);
-  digitalWrite(MODULE_PWR_PIN, HIGH);     // Module Power Default HIGH
+  
   delay(1000);
-  digitalWrite(ENABLE_VCCB_PIN, HIGH);    // VCC_B Enable pin
+  
   // digitalWrite(RESET_MODULE_PIN, HIGH);  // RESET_N Default HIGH 
   
   
@@ -154,9 +177,9 @@ bool WioTracker::waitForNetworkRegister(void)
   int errCounts = 0;
 
   //
-  while(!check_with_cmd("AT+CREG?\n\r", "+CREG: 0,1", CMD, 2, 2000)){
+  while(!check_with_cmd("AT+CEREG?\r\n", "+CEREG: 0,1", CMD, 2, 2000)){
     errCounts++;
-    if(errCounts > 30)    // Check for 30 times
+    if(errCounts > 15)    // Check for 30 times
     {
       return false;
     }
@@ -164,9 +187,9 @@ bool WioTracker::waitForNetworkRegister(void)
   }
 
   errCounts = 0;
-  while(!check_with_cmd("AT+CGREG?\n\r", "+CGREG: 0,1", CMD, 2, 2000)){
+  while(!check_with_cmd("AT+CGREG?\r\n", "+CGREG: 0,1", CMD, 2, 2000)){
     errCounts++;
-    if(errCounts > 30)    // Check for 30 times
+    if(errCounts > 15)    // Check for 30 times
     {
       return false;
     }
@@ -196,121 +219,194 @@ bool WioTracker::sendSMS(char *number, char *data)
     return wait_for_resp("OK\r\n", CMD, 10);
 }
 
-// bool WioTracker::readSMS(int messageIndex, char *message, int length, char *phone, char *datetime)  
-// {
-//   /* Response is like:
-//   AT+CMGR=2
-  
-//   +CMGR: "REC READ","XXXXXXXXXXX","","14/10/09,17:30:17+08"
-//   SMS text here
-  
-//   So we need (more or lees), 80 chars plus expected message length in buffer. CAUTION FREE MEMORY
-//   */
-
-//     int i = 0;
-//     char Buffer[80 + length];
-//     //char cmd[16];
-//     char num[4];
-//     char *p,*p2,*s;
+bool WioTracker::readAllRecUnreadSMS(void)
+{
+    /*
+        AT+CMGL="REC UNREAD"
+    */
     
-//     check_with_cmd(F("AT+CMGF=1\r\n"),"OK\r\n",CMD);
-//     delay(1000);
-//     //sprintf(cmd,"AT+CMGR=%d\r\n",messageIndex);
-//     //send_cmd(cmd);
-//     send_cmd("AT+CMGR=");
-//     itoa(messageIndex, num, 10);
-//     send_cmd(num);
-//     send_cmd("\r\n");
-//     clean_buffer(Buffer,sizeof(Buffer));
-//     read_buffer(Buffer,sizeof(Buffer));
+    // Set SMS as text mode
+    if(!check_with_cmd(F("AT+CMGF=1\r\n"), "OK", CMD)) { // Set message mode to ASCII
+        return false;
+    } else {
+#if(UART_DEBUG==true)
+        DEBUG("Set SMS as text mode!");
+#endif
+    }
+
+    send_cmd("AT+CMGL=\"REC UNREAD");
+    if(!check_with_cmd(F("\"\r\n"),"OK",CMD, true)) {
+        flush_serial();
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+int16_t WioTracker::detectRecUnreadSMS(void)
+{
+    /*
+        AT+CMGL="REC UNREAD"
+
+        +CMGL: 0,"REC UNREAD","xxxxxxx",,"17/07/24,14:45:43+32",161,6
+        xxxxxxx
+    */
+
+    int i;
+    char *s, *ps, *pe;
+    char Buffer[64];
+    char str_index[8];
+
+    clean_buffer(Buffer, 64);
+    send_cmd("AT+CMGL=\"REC UNREAD\"\r\n");
+    read_buffer(Buffer, 64, 2, 1000);
+#if(UART_DEBUG==true)
+    DEBUG("SMS Buffer: ");
+    DEBUG(Buffer);
+#endif
+    if(NULL != (s = strstr(Buffer, "+CMGL:"))){
+        ps = s + 7;
+        pe = strstr(s, "\"");
+        pe -= 2;
+
+        for(i = 0; ps+i <= pe; i++){
+            str_index[i] = *(ps+i);
+        }
+        str_index[i] = '\0';
+    } else {
+        return -1;
+    }
+
+    // Check if str_index valid
+    for(i = 0; i < strlen(str_index); i++)
+    {
+        if(!('0' <= str_index[i] && str_index[i] <= '9')){
+#if(UART_DEBUG==true)
+            ERROR("SMS index invalid\r\n");
+#endif
+            return -1;
+        }
+    }
+
+    return atoi(str_index);
+}
+
+bool WioTracker::readSMS(int messageIndex, char *message, int length, char *phone, char *datetime)  
+{
+  /* Response is like:
+  AT+CMGR=2
+  
+  +CMGR: "REC READ","XXXXXXXXXXX","","14/10/09,17:30:17+08"
+  SMS text here
+  
+  So we need (more or lees), 80 chars plus expected message length in buffer. CAUTION FREE MEMORY
+  */
+
+    int i = 0;
+    char Buffer[80 + length];
+    //char cmd[16];
+    char num[4];
+    char *p,*p2,*s;
+    
+    check_with_cmd(F("AT+CMGF=1\r\n"),"OK\r\n",CMD);
+    delay(1000);
+    //sprintf(cmd,"AT+CMGR=%d\r\n",messageIndex);
+    //send_cmd(cmd);
+    send_cmd("AT+CMGR=");
+    itoa(messageIndex, num, 10);
+    send_cmd(num);
+    send_cmd("\r\n");
+    clean_buffer(Buffer,sizeof(Buffer));
+    read_buffer(Buffer,sizeof(Buffer));
       
-//     if(NULL != ( s = strstr(Buffer,"READ\",\""))){
-//         // Extract phone number string
-//         p = strstr(s,",");
-//         p2 = p + 2; //We are in the first phone number character
-//         p = strstr((char *)(p2), "\"");
-//         if (NULL != p) {
-//             i = 0;
-//             while (p2 < p) {
-//                 phone[i++] = *(p2++);
-//             }
-//             phone[i] = '\0';            
-//         }
-//         // Extract date time string
-//         p = strstr((char *)(p2),",");
-//         p2 = p + 1; 
-//         p = strstr((char *)(p2), ","); 
-//         p2 = p + 2; //We are in the first date time character
-//         p = strstr((char *)(p2), "\"");
-//         if (NULL != p) {
-//             i = 0;
-//             while (p2 < p) {
-//                 datetime[i++] = *(p2++);
-//             }
-//             datetime[i] = '\0';
-//         }        
-//         if(NULL != ( s = strstr(s,"\r\n"))){
-//             i = 0;
-//             p = s + 2;
-//             while((*p != '\r')&&(i < length-1)) {
-//                 message[i++] = *(p++);
-//             }
-//             message[i] = '\0';
-//         }
-//         return true;
-//     }
-//     return false;    
-// }
+    if(NULL != ( s = strstr(Buffer,"READ\",\""))){
+        // Extract phone number string
+        p = strstr(s,",");
+        p2 = p + 2; //We are in the first phone number character
+        p = strstr((char *)(p2), "\"");
+        if (NULL != p) {
+            i = 0;
+            while (p2 < p) {
+                phone[i++] = *(p2++);
+            }
+            phone[i] = '\0';            
+        }
+        // Extract date time string
+        p = strstr((char *)(p2),",");
+        p2 = p + 1; 
+        p = strstr((char *)(p2), ","); 
+        p2 = p + 2; //We are in the first date time character
+        p = strstr((char *)(p2), "\"");
+        if (NULL != p) {
+            i = 0;
+            while (p2 < p) {
+                datetime[i++] = *(p2++);
+            }
+            datetime[i] = '\0';
+        }        
+        if(NULL != ( s = strstr(s,"\r\n"))){
+            i = 0;
+            p = s + 2;
+            while((*p != '\r')&&(i < length-1)) {
+                message[i++] = *(p++);
+            }
+            message[i] = '\0';
+        }
+        return true;
+    }
+    return false;    
+}
 
-// bool WioTracker::readSMS(int messageIndex, char *message,int length)
-// {
-//     int i = 0;
-//     char Buffer[100];
-//     //char cmd[16];
-//     char num[4];
-//     char *p,*s;
+bool WioTracker::readSMS(int messageIndex, char *message,int length)
+{
+    int i = 0;
+    char Buffer[100];
+    //char cmd[16];
+    char num[4];
+    char *p,*s;
     
-//     check_with_cmd(F("AT+CMGF=1\r\n"),"OK\r\n",CMD);
-//     delay(1000);
-//     send_cmd("AT+CMGR=");
-//     itoa(messageIndex, num, 10);
-//     send_cmd(num);
-//     // send_cmd("\r\n");
-//     send_cmd("\r\n");
-// //  sprintf(cmd,"AT+CMGR=%d\r\n",messageIndex);
-// //    send_cmd(cmd);
-//     clean_buffer(Buffer,sizeof(Buffer));
-//     read_buffer(Buffer,sizeof(Buffer),DEFAULT_TIMEOUT);
-//     if(NULL != ( s = strstr(Buffer,"+CMGR:"))){
-//         if(NULL != ( s = strstr(s,"\r\n"))){
-//             p = s + 2;
-//             while((*p != '\r')&&(i < length-1)) {
-//                 message[i++] = *(p++);
-//             }
-//             message[i] = '\0';
-//             return true;
-//         }
-//     }
-//     return false;   
-// }
+    check_with_cmd(F("AT+CMGF=1\r\n"),"OK\r\n",CMD);
+    delay(1000);
+    send_cmd("AT+CMGR=");
+    itoa(messageIndex, num, 10);
+    send_cmd(num);
+    // send_cmd("\r\n");
+    send_cmd("\r\n");
+//  sprintf(cmd,"AT+CMGR=%d\r\n",messageIndex);
+//    send_cmd(cmd);
+    clean_buffer(Buffer,sizeof(Buffer));
+    read_buffer(Buffer,sizeof(Buffer),DEFAULT_TIMEOUT);
+    if(NULL != ( s = strstr(Buffer,"+CMGR:"))){
+        if(NULL != ( s = strstr(s,"\r\n"))){
+            p = s + 2;
+            while((*p != '\r')&&(i < length-1)) {
+                message[i++] = *(p++);
+            }
+            message[i] = '\0';
+            return true;
+        }
+    }
+    return false;   
+}
 
-// bool WioTracker::deleteSMS(int index)
-// {
-//     //char cmd[16];
-//     char num[4];
-//     //sprintf(cmd,"AT+CMGD=%d\r\n",index);
-//     send_cmd("AT+CMGD=");
-//     if(index > 998){
-//         send_cmd("1,4");
-//     }
-//     else{
-//         itoa(index, num, 10);
-//         send_cmd(num);
-//     }
-//     // We have to wait OK response
-//     //return check_with_cmd(cmd,"OK\r\n",CMD);
-//     return check_with_cmd(F("\r"),"OK\r\n",CMD); 
-// }
+bool WioTracker::deleteSMS(int index)
+{
+    //char cmd[16];
+    char num[4];
+    //sprintf(cmd,"AT+CMGD=%d\r\n",index);
+    send_cmd("AT+CMGD=");
+    if(index > 998){
+        send_cmd("1,4");
+    }
+    else{
+        itoa(index, num, 10);
+        send_cmd(num);
+    }
+    // We have to wait OK response
+    //return check_with_cmd(cmd,"OK\r\n",CMD);
+    return check_with_cmd(F("\r"),"OK\r\n",CMD); 
+}
 
 
 bool WioTracker::callUp(char *number)
