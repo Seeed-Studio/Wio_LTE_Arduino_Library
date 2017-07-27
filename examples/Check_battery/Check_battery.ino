@@ -1,18 +1,17 @@
 
-#include "MC20_Arduino_Interface.h"
+#include "Arduino_Interface.h"
 
-const int pin_battery_voltage = A4;
+const int battery_adc_Pin = 16;  // PB0
 
 void setup() {
-    SerialUSB.begin(115200);
+
 }
 
 void loop() {
-
-    int a = analogRead(pin_battery_voltage);
-    float v = a/1023.0*3.3*2.0;        // there's an 10M and 10M resistor divider
+    float a = analogRead(battery_adc_Pin);
+    float v = a*3300/2048;        
     SerialUSB.print("The voltage of battery is ");
     SerialUSB.print(v, 2);
-    SerialUSB.println(" V");
+    SerialUSB.println(" mV");
     delay(1000);
 }
