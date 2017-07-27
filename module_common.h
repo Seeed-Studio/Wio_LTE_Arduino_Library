@@ -40,12 +40,6 @@
  *  used to realize WioTracker communication
  */ 
  
-enum Protocol {
-    CLOSED = 0,
-    TCP    = 1,
-    UDP    = 2,
-};
- 
 class WioTracker
 {
 public:
@@ -81,7 +75,7 @@ public:
      *  @returns
      *      
      */
-    void Power_On(void);
+    void Power_On(void);    
     void VCCB_Power_On(void);
     
     /** power reset for SIM800 board 
@@ -90,17 +84,27 @@ public:
      *      
      */ 
     void powerReset(void);
-
-    void io_init();
      
-     /** Wait for network register
-     *  
-     *  
+    /** Set URC port to uart1
      *  @returns
-     *      true on success
-     *      false on error
+     *      true on successfully
+     *      false on failed
      */
-     bool waitForNetworkRegister(void);
+    bool setURCtoUart1(void);
+
+    /** check SIM card status
+    *  @returns
+    *      true on SIM card Ready
+    *      false on error
+    */
+    bool checkSIMStatus(void);
+
+    /** Wait for network register
+    *  @returns
+    *      true on success
+    *      false on error
+    */
+    bool waitForNetworkRegister(void);
 
 
     /** send text SMS
@@ -187,59 +191,70 @@ public:
 
     int recv(char* buf, int len);
 
-    /** GSM power Mode
+    /** Set phone functionarity mode
      * @param
      *      0, least consumption 1, 4
      *      1, standard mode
      *      4, shut down RF send and receive function
      */
-    bool GSM_work_mode(int mode);
+    bool set_CFUN(int mode);
 
-    /** Config GSM slow clock mode
+    /** Set module system clock 
      * @param
      *  0 Disable slow clock
      *  1 Enable slow clock, and it is controlled by DTR
-     *  2 When there is no data on serial port in 5 seconds, module will enter Sleep Disable slow clock
      */
-    bool GSM_config_slow_clk(int mode);
+    bool set_SysClock(int mode);
 
+    /** Set module into sleep mode
+     * @param
+     * @return 
+     *  true on sleep successfully
+     *  false on sleep failed
+     */
+    bool module_sleep(void);
+
+    /** Set module wakeup from sleep mode
+     * @param
+     * @return 
+     *  true on wakeup successfully
+     *  false on wakeup failed
+     */
+    bool module_wakeup(void);
 
     /**
      * Turn off module power buy AT commnad
      */
-    bool AT_PowerDown(void);
+    bool AT_PowerDown(void);    
     
-// private:
-    bool checkSIMStatus(void);
-    
-    #if (1 == WIO_TRACKER_LTE_V11)
-    const int ENABLE_VCCB_PIN   = 26;  // PB10    
-    const int MODULE_PWR_PIN    = 18;  // PB2
-    const int PWR_KEY_PIN       = 36;  // PC4 
-    const int ANT_PWR_PIN       = 28;  // PB12
-
-    const int WAKEUP_IN_PIN      = 32; // PC0
-    const int AP_READY_PIN       = 33; // PC1
-    const int WAKEUP_DISABLE_PIN = 34; // PC2
-    const int RESET_MODULE_PIN   = 35; // PC3
-    const int STATUS_PIN         = 31; // PB15
-    const int RGB_LED_PIN        = 17; // PB1    
-
-    #elif (1 == WIO_TRACKER_LTE_V12) 
-    const int SD_PWR_PIN        = 15;  // PA15
-    const int ENABLE_VCCB_PIN   = 26;  // PB10 
-    const int MODULE_PWR_PIN    = 21;  // PB5
-    const int PWR_KEY_PIN       = 36;  // PC4 
-    const int CODEC_I2C_PWR_PIN = 37;  // PC5 
-    const int ANT_PWR_PIN       = 28;  // PB12
-
-    const int WAKEUP_IN_PIN      = 32; // PC0
-    const int AP_READY_PIN       = 33; // PC1
-    const int WAKEUP_DISABLE_PIN = 34; // PC2
-    const int RESET_MODULE_PIN   = 35; // PC3
-    const int STATUS_PIN         = 31; // PB15
+#if (1 == WIO_TRACKER_LTE_V11)
+    const int DTR_PIN            =  1; // PA1
+    const int BAT_C_PIN          = 16; // PB0
     const int RGB_LED_PIN        = 17; // PB1
-
-    #endif
+    const int MODULE_PWR_PIN     = 18; // PB2
+    const int ENABLE_VCCB_PIN    = 26; // PB10    
+    const int ANT_PWR_PIN        = 28; // PB12
+    const int STATUS_PIN         = 31; // PB15
+    const int WAKEUP_IN_PIN      = 32; // PC0
+    const int AP_READY_PIN       = 33; // PC1
+    const int WAKEUP_DISABLE_PIN = 34; // PC2
+    const int RESET_MODULE_PIN   = 35; // PC3
+    const int PWR_KEY_PIN        = 36; // PC4 
+#elif (1 == WIO_TRACKER_LTE_V12)
+    const int DTR_PIN            =  1; // PA1
+    const int SD_PWR_PIN         = 15; // PA15
+    const int BAT_C_PIN          = 16; // PB0
+    const int RGB_LED_PIN        = 17; // PB1
+    const int MODULE_PWR_PIN     = 21; // PB5
+    const int ENABLE_VCCB_PIN    = 26; // PB10    
+    const int ANT_PWR_PIN        = 28; // PB12
+    const int STATUS_PIN         = 31; // PB15
+    const int WAKEUP_IN_PIN      = 32; // PC0
+    const int AP_READY_PIN       = 33; // PC1
+    const int WAKEUP_DISABLE_PIN = 34; // PC2
+    const int RESET_MODULE_PIN   = 35; // PC3
+    const int PWR_KEY_PIN        = 36; // PC4
+    const int CODEC_I2C_PWR_PIN  = 37; // PC5
+#endif
 };
 #endif

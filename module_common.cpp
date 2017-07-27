@@ -30,7 +30,7 @@
  */
 
  #include <stdio.h>
- #include "module_Common.h"
+ #include "module_common.h"
 
 // WioTracker* WioTracker::inst;
 
@@ -63,7 +63,12 @@ bool WioTracker::init(void)
 
 bool WioTracker::Check_If_Power_On(void)
 {
-  return check_with_cmd(F("AT\r\n"), "OK", CMD, 2, 2000, true);
+    if(check_with_cmd(F("AT\r\n"), "OK", CMD, 2, 2000, true)){
+        // Set URC port to uart1
+        // setURCtoUart1();
+        return true;
+    }
+    return false;
 }
 
 void WioTracker::Power_On(void)
@@ -81,8 +86,7 @@ void WioTracker::Power_On(void)
     digitalWrite(CODEC_I2C_PWR_PIN, HIGH);
 #endif
 
-// #if(1 == MODULE_PWR_ON)
-#if 0
+#if(1 == MODULE_PWR_ON)
   pinMode(MODULE_PWR_PIN, OUTPUT);
   digitalWrite(MODULE_PWR_PIN, HIGH);     // Module Power Default HIGH
 #endif 
@@ -95,20 +99,11 @@ void WioTracker::Power_On(void)
 #if(1==ANTENNA_PWR_ON)  
   pinMode(ANT_PWR_PIN, OUTPUT);
   digitalWrite(ANT_PWR_PIN, HIGH);     // antenna power enable
-  // pinMode(RESET_MODULE_PIN, OUTPUT);
  #endif
 
   pinMode(WAKEUP_IN_PIN, OUTPUT);
   pinMode(STATUS_PIN, INPUT);
-
-  
-  // digitalWrite(PWR_KEY_PIN, HIGH);
-  
   delay(1000);
-  
-  // digitalWrite(RESET_MODULE_PIN, HIGH);  // RESET_N Default HIGH 
-  
-  
   digitalWrite(WAKEUP_IN_PIN, LOW);
   delay(500);
   pinMode(PWR_KEY_PIN, OUTPUT);
@@ -143,15 +138,12 @@ void WioTracker::powerReset(void)
 { 
   
 }
-  
-void WioTracker::io_init()
+
+bool WioTracker::setURCtoUart1(void)
 {
-  for(int i = 0; i< 20; i++){
-   pinMode(12, OUTPUT);
-   digitalWrite(i, LOW);
-  }
+    return check_with_cmd("AT+QURCCFG=\"urcport\",\"uart1\"", "OK", CMD, 2);
 }
-  
+
 bool WioTracker::checkSIMStatus(void)
 {
     char Buffer[32];
@@ -474,7 +466,10 @@ int WioTracker::recv(char* buf, int len)
     return strlen(buf);
 }
 
-bool WioTracker::GSM_work_mode(int mode)
+
+/*************************** Module consumption control **************************/
+
+bool WioTracker::set_CFUN(int mode)
 {
   char buf_w[20];
   clean_buffer(buf_w, 20);
@@ -483,13 +478,13 @@ bool WioTracker::GSM_work_mode(int mode)
   return check_with_cmd("\n\r", "OK", CMD, 2, 2000, UART_DEBUG);
 }
 
-bool WioTracker::GSM_config_slow_clk(int mode)
+bool WioTracker::set_SysClock(int mode)
 {
   char buf_w[20];
   clean_buffer(buf_w, 20);
   sprintf(buf_w, "AT+QSCLK=%d", mode);
   send_cmd(buf_w);
-  return check_with_cmd("\n\r", "OK", CMD, 2, 2000, UART_DEBUG);
+  return check_with_cmd("\r\n", "OK", CMD, 2, 2000);
 }
 
 bool WioTracker::AT_PowerDown(void)
@@ -497,3 +492,34 @@ bool WioTracker::AT_PowerDown(void)
   return check_with_cmd("AT+QPOWD=1\n\r", "NORMAL POWER DOWN", CMD, 5, 2000, UART_DEBUG);
 }
 
+// AT CMD module sleep
+bool WioTracker::module_sleep()
+{  
+  bool ret;
+
+  pinMode(WAKEUP_IN_PIN, OUTPUT);
+  pinMode(DTR_PIN, INPUT);
+  // Send Sleep AT CMD
+  return set_SysClock(1);
+
+}
+
+// AT CMD wakeup module
+bool WioTracker::module_wakeup()
+{
+  bool ret;
+  pinMode(WAKEUP_IN_PIN, OUTPUT);  
+  pinMode(DTR_PIN, OUTPUT);
+  digitalWrite(DTR_PIN, LOW);
+  digitalWrite(DTR_PIN, LOW);
+  delay(1000);
+  // Send Wakeup AT CMD
+  ret = set_SysClock(0);
+  if(ret){
+    digitalWrite(DTR_PIN, INPUT);
+  }
+  return ret;
+}
+
+
+/*************************** End of Module consumption control **************************/
