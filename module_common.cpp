@@ -43,6 +43,11 @@ void Peripherial_Init(){
 WioTracker::WioTracker()
 {
     Peripherial_Init();
+    
+#if(1 == RGB_LED_ON)
+    pinMode(RGB_LED_PWR_PIN, OUTPUT);
+    digitalWrite(RGB_LED_PWR_PIN, HIGH);  // RGB LED Power
+#endif   
 }   
 
 bool WioTracker::init(void)
@@ -81,9 +86,10 @@ void WioTracker::Power_On(void)
   if(Check_If_Power_On()){
     return;
   }    
+
 #if((1 == WIO_TRACKER_LTE_V12) && (CODEC_PWR_ON == 1))
     pinMode(CODEC_I2C_PWR_PIN, OUTPUT);
-    digitalWrite(CODEC_I2C_PWR_PIN, HIGH);
+    digitalWrite(CODEC_I2C_PWR_PIN, HIGH);  // CODEC Power 
 #endif
 
 #if(1 == MODULE_PWR_ON)
@@ -99,40 +105,20 @@ void WioTracker::Power_On(void)
 #if(1==ANTENNA_PWR_ON)  
   pinMode(ANT_PWR_PIN, OUTPUT);
   digitalWrite(ANT_PWR_PIN, HIGH);     // antenna power enable
- #endif
-
+#endif 
   pinMode(WAKEUP_IN_PIN, OUTPUT);
-  pinMode(STATUS_PIN, INPUT);
-  delay(1000);
   digitalWrite(WAKEUP_IN_PIN, LOW);
-  delay(500);
   pinMode(PWR_KEY_PIN, OUTPUT);
   digitalWrite(PWR_KEY_PIN, LOW);
-  SerialUSB.print("STATUS_PIN 1: ");
-  SerialUSB.println(digitalRead(STATUS_PIN));
   digitalWrite(PWR_KEY_PIN, HIGH);
-  delay(2000);
+  delay(800);
   digitalWrite(PWR_KEY_PIN, LOW);
-  delay(500);
-
-  while(pwr_status == 1){
-    pwr_status = digitalRead(STATUS_PIN);
-    SerialUSB.print("STATUS_PIN 2: ");
-    SerialUSB.println(pwr_status);
-    delay(1000);
-    errCnt++;  
-    if(errCnt > 5){
-      SerialUSB.println("Power On Fail...");
-      return;
-    }
-  }
 }
 
 void WioTracker::VCCB_Power_On(void)
 {
   digitalWrite(ENABLE_VCCB_PIN, HIGH);
 }
-
 
 void WioTracker::powerReset(void)
 { 

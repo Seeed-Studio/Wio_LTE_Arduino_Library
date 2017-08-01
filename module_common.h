@@ -242,6 +242,7 @@ public:
     const int PWR_KEY_PIN        = 36; // PC4 
 #elif (1 == WIO_TRACKER_LTE_V12)
     const int DTR_PIN            =  1; // PA1
+    const int RGB_LED_PWR_PIN    =  8; // PA8
     const int SD_PWR_PIN         = 15; // PA15
     const int BAT_C_PIN          = 16; // PB0
     const int RGB_LED_PIN        = 17; // PB1
