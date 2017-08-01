@@ -186,11 +186,10 @@ void WS2812::WS2812Send(void) {
 	
 	for(c = 0; c < (ledNum * 3); c++)
 	{	
-		uint8_t b;			
-		for( b = 8; b; b--)		
+		for( int b = 7; b >= 0; b--)		
 		{					
 			// 1 code
-			if(WS2812Buffer[c] & (1<<b))
+			if(WS2812Buffer[c] & (0x01<<b))
 			{
 				PARTEN_0_CODE(sigPin);
 			} 

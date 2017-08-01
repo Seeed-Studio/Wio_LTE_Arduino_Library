@@ -6,16 +6,15 @@
 WioTracker wio = WioTracker();
 WS2812 strip = WS2812(LEN_NUM, wio.RGB_LED_PIN);
 
-
 void setup() {
-  // Enable VCCB
-  pinMode(wio.ENABLE_VCCB_PIN, OUTPUT);
-  digitalWrite(wio.ENABLE_VCCB_PIN, HIGH);
+  // Set RGB LED power pin high
+  pinMode(wio.RGB_LED_PWR_PIN, OUTPUT); 
+  digitalWrite(wio.RGB_LED_PWR_PIN, HIGH);
   strip.begin();
   strip.brightness = 20;
 }
 
 void loop() {  
   strip.RGBCycle(1000);   
-  strip.rainbowCycle(20);	
+  strip.rainbowCycle(20);
 }
