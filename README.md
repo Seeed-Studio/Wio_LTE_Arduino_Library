@@ -24,15 +24,14 @@ Change dfu driver
 
 Usage
 ===
-1.Install Arduino IDE
-2.[Install Wio LTE board in Arduino IDE](https://github.com/Seeed-Studio/Seeed_Platform)
-
+1.Install Arduino IDE.<br>
+2.[Install Wio LTE board in Arduino IDE](https://github.com/Seeed-Studio/Seeed_Platform) <br>
 ![](img/boardManager.png)
 
 3.Download this repo to your Arduino libraries' path. <br>
 4.Choose a example to compile. <br>
 5.Before connect USB cable to Computer press and hold BOOT button, in order to access ***STM BOOLARDER*** mode. <br>
-6.Verify and upload Arduino sketch.
+6.Verify and upload Arduino sketch.<br>
 
 
 
