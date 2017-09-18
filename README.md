@@ -1,5 +1,6 @@
 # Wio_Tracker_LTE
-Wio Tracker LTE is boards combined with STM32F405RGT6 and EC21(4G/3G/GPS) module
+Wio Tracker LTE is boards combined with STM32F405RGT6 and EC21(4G/3G/GPS) module.
+
 You can buy Wio Tracker LTE board [here](https://www.seeedstudio.com). <br>
 
 Install USB drive
