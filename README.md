@@ -34,7 +34,9 @@ Usage
 5.Before connect USB cable to Computer press and hold BOOT button, in order to access ***STM BOOLARDER*** mode. <br>
 6.Verify and upload Arduino sketch.<br>
 
-
+SD Library
+===
+Download this [github repo](https://github.com/Seeed-Studio/SD), you need to move the original SD library out of the Arduino library path, and use the downloaded one.
 
 
 
