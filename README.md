@@ -25,8 +25,14 @@ Change dfu driver
 
 Usage
 ===
-1.Install Arduino IDE.<br>
-2.[Install Wio LTE board in Arduino IDE](https://github.com/Seeed-Studio/Seeed_Platform) <br>
+1.Install Arduino IDE. <br>
+2.[Install Wio LTE library](https://github.com/Seeed-Studio/Seeed_Platform) <br>
+Copy and past the json URL to Arduino preference
+
+```
+https://raw.githubusercontent.com/Seeed-Studio/Seeed_Platform/master/package_seeeduino_boards_index.json
+```
+
 ![](img/boardManager.png)
 
 3.Download this repo to your Arduino libraries' path. <br>
