@@ -31,5 +31,5 @@ void setup() {
 
 void loop() {
   /* Debug */
-  uart_bypass();
+  AT_bypass();
 }
