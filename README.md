@@ -42,7 +42,18 @@ https://raw.githubusercontent.com/Seeed-Studio/Seeed_Platform/master/package_see
 
 SD Library
 ===
-Download this [github repo](https://github.com/Seeed-Studio/SD), you need to move the original SD library out of the Arduino library path, and use the downloaded one.
+Download this [github repo](https://github.com/Seeed-Studio/SD), you need to move to the Arduino system libraries directory and replace the original SD library.
+
+**With windows OS the directory path maybe like this**
+```
+C:\Program Files (x86)\Arduino\libraries\SD
+```
+**With MacOS the directory path maybe like this**
+```
+Arduino.app/Contents/Resources/Java/libraries/SD
+```
+
+
 
 
 
