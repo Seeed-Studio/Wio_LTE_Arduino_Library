@@ -30,7 +30,7 @@
  */
 
 #include "Seeed_ws2812.h"
-#include <arduino.h>
+#include <Arduino.h>
 
 #define STM32F40xx (1)
 

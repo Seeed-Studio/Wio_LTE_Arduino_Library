@@ -32,7 +32,7 @@
 #ifndef SEEED_WS2812_h
 #define SEEED_WS2812_h
 
-#include <arduino.h>
+#include <Arduino.h>
 #include <stdlib.h>
 
 class WS2812 {
