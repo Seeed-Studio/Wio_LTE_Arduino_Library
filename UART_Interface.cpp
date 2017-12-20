@@ -1,8 +1,8 @@
 /*
- * EC21_Common.cpp
- * A library for SeeedStudio Wio Tracker
+ * UART_Interface.cpp
+ * A library for Arduino UART Interface
  *
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lawliet zou, lambor
  * Create Time: April 2017
@@ -29,7 +29,7 @@
  * THE SOFTWARE.
  */
 
-#include "Arduino_Interface.h"
+#include "UART_Interface.h"
 
 
 void  serialPort_init()
@@ -77,6 +77,7 @@ void flush_serial()
 void read_buffer(char *buffer, int count, unsigned int timeout, unsigned int chartimeout)
 {
     int i = 0;
+    bool is_timeout = false;
     unsigned long timerStart, prevChar;
     timerStart = millis();
     prevChar = 0;
@@ -161,7 +162,7 @@ boolean wait_for_resp(const char* resp, DataType type, unsigned int timeout, uns
             char c = MODULE_PORT.read();
             
             if(debug){
-                serialDebug.write(c);
+                DEBUG_BYTE(c);
             }
 
             prevChar = millis();

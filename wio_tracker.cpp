@@ -1,8 +1,8 @@
 /*
- * module_common.cpp
- * A library for SeeedStudio GPS Tracker
+ * wiowio_trackerlte.cpp
+ * A library for SeeedStudio Wio LTE Tracker
  *  
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lawliet zou, lambor
  * Create Time: April 2017
@@ -30,7 +30,7 @@
  */
 
  #include <stdio.h>
- #include "module_common.h"
+ #include "wio_tracker.h"
 
 // WioTracker* WioTracker::inst;
 
@@ -239,10 +239,10 @@ int16_t WioTracker::detectRecUnreadSMS(void)
     clean_buffer(Buffer, 64);
     send_cmd("AT+CMGL=\"REC UNREAD\"\r\n");
     read_buffer(Buffer, 64, 2, 1000);
-#if(UART_DEBUG==true)
+    
     DEBUG("SMS Buffer: ");
     DEBUG(Buffer);
-#endif
+
     if(NULL != (s = strstr(Buffer, "+CMGL:"))){
         ps = s + 7;
         pe = strstr(s, "\"");
