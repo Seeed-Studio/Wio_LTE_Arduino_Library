@@ -1,9 +1,6 @@
-#include "module_common.h"
-#include "Arduino_Interface.h"
+#include "wio_tracker.h"
 
-#define RGBPIN 10
-
-const char message[128] = "Hello MC20!";
+char message[128] = "Hello from Wio Traker!";
 
 WioTracker wio = WioTracker();
 
@@ -18,8 +15,16 @@ void setup() {
   } else {
     SerialUSB.println("Network ready!");
   }
-
-  wio.sendSMS("13750024343", "Hello from Wio Traker!");  // Change ****** to your test phone number
+  
+  // Change xxxxxxxxxxx to your test phone number
+  if(wio.sendSMS("13750024343", message))
+  {
+    SerialUSB.println("Send OK!");
+  }
+  else 
+  {
+    SerialUSB.println("Send Error!");
+  }
 
 }
 

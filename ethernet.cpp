@@ -1,7 +1,7 @@
 /*
  * ethernet.cpp
  *
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lambor
  * Create Time: July 2017
@@ -220,7 +220,7 @@ bool Ethernet::sendData(char *data)
         return false;
     }
         
-    if(!check_with_cmd(data,"SEND OK", DATA, 2*DEFAULT_TIMEOUT)) {
+    if(!check_with_cmd(data,"OK", DATA, 2*DEFAULT_TIMEOUT, true)) {
         ERROR("ERROR:SendData");
         return false;
     }   
@@ -241,6 +241,23 @@ bool Ethernet::write(char *data)
         ERROR("ERROR:SendData");
         return false;
     }   
+    return true;
+}
+
+/**
+ * \brief revc context after senddata
+ * \return None
+ * TO-DO: socket ID should be auto detect
+*/
+bool Ethernet::revc()
+{
+    char cmd[32];
+    snprintf(cmd,sizeof(cmd),"AT+QIRD=0,1500\r\n");
+    if(!check_with_cmd(cmd,"+QIURC: \"closed\"", CMD, 2*DEFAULT_TIMEOUT, true)) {
+        ERROR("ERROR:QIRD");
+        return false;
+    }
+
     return true;
 }
 

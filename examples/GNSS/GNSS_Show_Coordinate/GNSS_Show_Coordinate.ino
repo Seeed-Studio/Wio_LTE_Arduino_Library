@@ -1,19 +1,9 @@
-#include "module_common.h"
-#include "Arduino_Interface.h"
 #include "gnss.h"
 
 
 GNSS gnss = GNSS();
 
 void setup() {
-  // Enable Module Power
-  pinMode(gnss.MODULE_PWR_PIN, OUTPUT);
-  digitalWrite(gnss.MODULE_PWR_PIN , HIGH);    
-  // Enable VCCB
-  pinMode(gnss.ENABLE_VCCB_PIN, OUTPUT);
-  digitalWrite(gnss.ENABLE_VCCB_PIN, HIGH);
-
-  // Module power on
   gnss.Power_On();
   while(false == gnss.Check_If_Power_On()){
     SerialUSB.println("Waitting for module to alvie...");
@@ -31,15 +21,19 @@ void setup() {
 }
 
 void loop() {
-  char buffer[64];
   if(gnss.getCoordinate()){
-    SerialUSB.print("GNSS: ");
+    SerialUSB.print("GNSS: \r\n");
+
+    // Output double type
     SerialUSB.print(gnss.longitude, 6);
     SerialUSB.print(",");
     SerialUSB.println(gnss.latitude, 6);
+    
+    // Output char* type
     SerialUSB.print(gnss.str_longitude);
     SerialUSB.print(",");
     SerialUSB.println(gnss.str_latitude);
+    SerialUSB.println();
   } else{
     SerialUSB.println("Error!");
   }

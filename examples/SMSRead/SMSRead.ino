@@ -1,5 +1,4 @@
-#include "module_common.h"
-#include "Arduino_Interface.h"
+#include "wiowio_trackerlte.h"
 
 uint16_t newSMSNumber = -1;
 char message[128];
@@ -25,10 +24,10 @@ void setup() {
 }
 
 void loop() {
-  int sms = wio.detectRecUnreadSMS();
-  if(sms != -1){
-    newSMSNumber = sms;
-    wio.readSMS(newSMSNumber, message, 128, phone, dateTime);  // readSMS(int messageIndex, char *message, int length, char *phone, char *datetime) 
+  int id = wio.detectRecUnreadSMS();
+  if(-1 != id){
+    newSMSNumber = id;
+    wio.readSMS(newSMSNumber, message, 128, phone, dateTime);
     SerialUSB.println("++++++++++++++ Start +++++++++++++++++");
     SerialUSB.print("From: ");
     SerialUSB.println(phone);

@@ -1,9 +1,6 @@
-#include "module_common.h"
-
-#define RGBPIN 10
+#include "wio_tracker.h"
 
 WioTracker wio = WioTracker();
-
 
 void setup() {
   wio.Power_On();

@@ -1,7 +1,7 @@
 /*
  * internet.h
  *
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lambor
  * Create Time: July 2017
@@ -32,8 +32,8 @@
 #define __ETHERNET_H__
 
 #include "stdio.h"
-#include "module_common.h"
-#include "Arduino_Interface.h"
+#include "wio_tracker.h"
+#include "UART_Interface.h"
 
 
 enum Protocol {
@@ -121,6 +121,13 @@ public:
      *      -1 on error
      */
     bool write(char *data);
+
+    /** Receive data
+     * 
+     * 
+     * 
+    */
+    bool revc();
 
     /** Get socket status
      *  @returns

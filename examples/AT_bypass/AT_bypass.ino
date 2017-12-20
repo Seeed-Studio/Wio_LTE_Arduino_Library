@@ -1,5 +1,4 @@
-#include "module_common.h"
-#include "Arduino_Interface.h"
+#include "wio_tracker.h"
 
 
 WioTracker wio = WioTracker();

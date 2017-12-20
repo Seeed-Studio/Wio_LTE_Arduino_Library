@@ -2,7 +2,7 @@
  * gnss.h
  * A library for SeeedStudio GPS Tracker BT 
  *
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lawliet zou, lambor
  * Create Time: April 2017
@@ -32,8 +32,8 @@
 #ifndef __GNSS_H__
 #define __GNSS_H__
 
-#include "module_common.h"
-#include "Arduino_Interface.h"
+#include "wio_tracker.h"
+#include "UART_Interface.h"
 #include "stdio.h"
 
 class GNSS : public WioTracker

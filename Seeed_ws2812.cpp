@@ -2,7 +2,7 @@
  * Seeed_ws2812.cpp
  * Arduino library for RGB led WS2812
  *  
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lambor
  * Create Time: April 2017
@@ -30,7 +30,6 @@
  */
 
 #include "Seeed_ws2812.h"
-#include <arduino.h>
 
 #define STM32F40xx (1)
 
