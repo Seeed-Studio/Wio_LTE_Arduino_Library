@@ -40,18 +40,6 @@ https://raw.githubusercontent.com/Seeed-Studio/Seeed_Platform/master/package_see
 5.Before connect USB cable to Computer press and hold BOOT button, in order to access ***STM BOOLARDER*** mode. <br>
 6.Verify and upload Arduino sketch.<br>
 
-SD Library
-===
-Download this [github repo](https://github.com/Seeed-Studio/SD), you need to move to the Arduino system libraries directory and replace the original SD library.
-
-**With windows OS the directory path maybe like this**
-```
-C:\Program Files (x86)\Arduino\libraries\SD
-```
-**With MacOS the directory path maybe like this**
-```
-Arduino.app/Contents/Resources/Java/libraries/SD
-```
 
 
 
