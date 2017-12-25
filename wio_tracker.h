@@ -1,8 +1,8 @@
 /*
- * module_Common.h
- * A library for SeeedStudio GPS Tracker
+ * wiwio_trackerolte.h
+ * A library for SeeedStudio Wio Tracker LTE
  *  
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lawliet zou, lambor
  * Create Time: April 2017
@@ -29,10 +29,10 @@
  * THE SOFTWARE.
  */
 
-#ifndef __MODULE_COMMON_H__
-#define __MODULE_COMMON_H__
+#ifndef __WIO_TRACKER_H__
+#define __WIO_TRACKER_H__
 
-#include "Arduino_Interface.h"
+#include "UART_Interface.h"
 #include "itoa.h"
 #include "board_config.h"
 

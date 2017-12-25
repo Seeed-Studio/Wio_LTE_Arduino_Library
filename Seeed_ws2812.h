@@ -2,7 +2,7 @@
  * Seeed_ws2812.h
  * Arduino library for RGB led WS2812
  *  
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lambor
  * Create Time: April 2017
@@ -45,13 +45,13 @@ class WS2812 {
 		void WS2812Clear(void);
 		void pureColor(uint8_t);
 		void WS2812SetRGB(uint32_t led, uint8_t red,
-							uint8_t green, uint8_t blue);
+		uint8_t green, uint8_t blue);
 		void WS2812SetRGB(uint32_t led, uint8_t red, 
-							uint8_t green, uint8_t blue, uint8_t light);
+		uint8_t green, uint8_t blue, uint8_t light);
 		void WS2812Send(void);
 		void WS2812SetHSV(uint32_t led, uint32_t hue, 
-							uint32_t saturation, uint32_t value);
-        void rainbowCycle(uint8_t wait);
+		uint32_t saturation, uint32_t value);
+		void rainbowCycle(uint8_t wait);
 		void colorWheel(byte WheelPos, uint8_t n);
 		void RGBCycle(uint16_t);
 		

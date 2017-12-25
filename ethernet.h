@@ -1,7 +1,7 @@
 /*
  * internet.h
  *
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lambor
  * Create Time: July 2017
@@ -32,14 +32,20 @@
 #define __ETHERNET_H__
 
 #include "stdio.h"
-#include "module_common.h"
-#include "Arduino_Interface.h"
+#include "wio_tracker.h"
+#include "UART_Interface.h"
 
 
 enum Protocol {
     CLOSED = 0,
     TCP    = 1,
     UDP    = 2
+};
+
+enum SocketAccessMode {
+    SOCKET_BUFFER_MODE = 0,
+    SOCKET_DIRECT_PUSH_MODE,
+    SOCKET_TRANSPARANT_MODE
 };
 
 class Ethernet : public WioTracker
@@ -104,23 +110,22 @@ public:
      *      -1 on error
      *      0 on success
      */
-    bool connect(const char* ip, int port, int connectType = TCP);
+    bool connect(const char* ip, int port, int connectType = TCP, uint8_t dataAccessMode = SOCKET_DIRECT_PUSH_MODE);
 
-    /** send data to socket server
-     *  @param  data    data that will be send to socket server
-     *  @returns
-     *      0 on success
-     *      -1 on error
-     */
-    bool sendData(char* data);
-
-    /** send data to socket server
+    /** Write data to socket server
      *  @param  data    data that will be send to socket server
      *  @returns
      *      0 on success
      *      -1 on error
      */
     bool write(char *data);
+
+    /** Read data from 
+     * 
+     * 
+     * 
+    */
+    bool read();
 
     /** Get socket status
      *  @returns

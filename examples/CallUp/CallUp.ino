@@ -1,13 +1,11 @@
-#include "module_common.h"
-
-#define RGBPIN 10
+#include "wio_tracker.h"
 
 WioTracker wio = WioTracker();
 
-
 void setup() {
-  wio.Power_On();
-  SerialUSB.println("Power On!");
+  SerialUSB.println("Wait for power on...");
+  wio.Power_On();  
+  SerialUSB.println("Power On O.K!");
 
   while(!wio.init()){
     delay(1000);

@@ -2,7 +2,7 @@
  * EC21_Common.h
  * A library for SeeedStudio Wio Tracker
  *
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lawliet zou, lambor
  * Create Time: April 2017
@@ -29,8 +29,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef __ARDUINO_INTERFACE_H__
-#define __ARDUINO_INTERFACE_H__
+#ifndef __UART_INTERFACE_H__
+#define __UART_INTERFACE_H__
 
 #include <Arduino.h>
 #include <board_config.h>
@@ -43,12 +43,14 @@
 
 
 
-#ifdef UART_DEBUG
+#if(1==UART_DEBUG)
 #define ERROR(x)            SerialUSB.println(x)
 #define DEBUG(x)            SerialUSB.println(x)
+#define DEBUG_BYTE(x)       SerialUSB.write(x)
 #else
 #define ERROR(x)
 #define DEBUG(x)
+#define DEBUG_BYTE(x)
 #endif
  
 enum DataType {

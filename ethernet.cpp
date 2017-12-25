@@ -1,7 +1,7 @@
 /*
  * ethernet.cpp
  *
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lambor
  * Create Time: July 2017
@@ -189,17 +189,34 @@ char* Ethernet::recoverIP()
 //     return 0;
 // }
 
-bool Ethernet::connect(const char *ip, int port, int connectType)
+bool Ethernet::connect(const char *ip, int port, int connectType, uint8_t dataAccessMode)
 {
+    /**
+     * @breif EC21 has 12 socketid can be used, in this function we always use socketid NO.0.
+     * @dataAccessMode:
+     * 
+     * 0.In SOCKET_BUFFER_MODE
+     *  - Use "AT+QISEND=0,len" to send data.
+     *  - Use "AT+QIRD=0,0" to check buffer size and read out data.
+     * 
+     * 1.In SOCKET_DIRECT_PUSH_MODE 
+     *  - Use "AT+QISEND=0,len" to send data
+     *  - Received data will push out directly.
+     * 
+     * 2.In SOCKET_TRANSPARANT_MODE
+     *  - After connect 
+     *  - Write data to Module Serial directly.
+     *  - Any received data will push out directly.
+    */
     uint8_t errCount = 0;
     char cipstart[64];
 
 
-    if(connectType == TCP) { sprintf(cipstart, "AT+QIOPEN=1,0,\"TCP\",\"%s\",%d,0,0\r\n", ip, port); }
-    else if(connectType == UDP) { sprintf(cipstart, "AT+QIOPEN=1,0,\"UDP\",\"%s\",%d,0,0\r\n", ip, port); }
+    if(connectType == TCP) { sprintf(cipstart, "AT+QIOPEN=1,0,\"TCP\",\"%s\",%d,0,%d\r\n", ip, port, dataAccessMode); }
+    else if(connectType == UDP) { sprintf(cipstart, "AT+QIOPEN=1,0,\"UDP\",\"%s\",%d,0,%d\r\n", ip, port, dataAccessMode); }
     else { return false; } 
         
-    while(!check_with_cmd(cipstart, "+QIOPEN: 0,0", CMD, 2*DEFAULT_TIMEOUT, 2000)) {// connect tcp
+    while(!check_with_cmd(cipstart, "+QIOPEN: 0", CMD, 2*DEFAULT_TIMEOUT, 2000)) {// connect tcp
         ERROR("ERROR:QIOPEN");
         if(errCount > 3){
             return false;
@@ -210,37 +227,52 @@ bool Ethernet::connect(const char *ip, int port, int connectType)
     return true;
 }
 
-bool Ethernet::sendData(char *data)
-{
-    char cmd[32];
-    int len = strlen(data); 
-    snprintf(cmd,sizeof(cmd),"AT+QISEND=0,%d\r\n",len);
-    if(!check_with_cmd(cmd,">", CMD, 2*DEFAULT_TIMEOUT)) {
-        ERROR("ERROR:QISEND");
-        return false;
-    }
-        
-    if(!check_with_cmd(data,"SEND OK", DATA, 2*DEFAULT_TIMEOUT)) {
-        ERROR("ERROR:SendData");
-        return false;
-    }   
-    return true;
-}
 
 bool Ethernet::write(char *data)
 {
+    /** Socket client write process
+     * 1.Open
+     *      AT+QIOPEN=1,0,"TCP","mbed.org",80,0,1
+     * 2 Set data lenght 
+     *      AT+QISEND=0,53
+     * 3.Put in data
+     *      GET /media/uploads/mbed_official/hello.txt HTTP/1.0\r\n\r\n
+     * 4.Close socket
+     *      AT+QICLOSE=0
+    */
+
     char cmd[32];
     int len = strlen(data); 
     snprintf(cmd,sizeof(cmd),"AT+QISEND=0,%d\r\n",len);
     if(!check_with_cmd(cmd,">", CMD, 2*DEFAULT_TIMEOUT)) {
-        ERROR("ERROR:QISEND");
+        ERROR("ERROR:QISEND\r\n"
+              "Data length: ");
+        ERROR(len);
         return false;
     }
         
-    if(!check_with_cmd(data,"SEND OK", DATA, 2*DEFAULT_TIMEOUT)) {
-        ERROR("ERROR:SendData");
+    send_cmd(data);
+    send_cmd("\r\n");
+    // if(!check_with_cmd("\r\n","SEND OK", DATA, 2*DEFAULT_TIMEOUT)) {
+    //     ERROR("ERROR:SendData");
+    //     return false;
+    // }   
+    return true;
+}
+
+/**
+ * \brief Read data from buffer
+ * \return bool
+*/
+bool Ethernet::read()
+{
+    char cmd[32];
+    snprintf(cmd,sizeof(cmd),"AT+QIRD=0,1500\r\n");
+    if(!check_with_cmd(cmd,"+QIURC: \"closed\"", CMD, 2*DEFAULT_TIMEOUT, true)) {
+        ERROR("ERROR:QIRD");
         return false;
-    }   
+    }
+
     return true;
 }
 

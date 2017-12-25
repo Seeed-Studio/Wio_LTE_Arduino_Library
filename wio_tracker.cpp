@@ -1,8 +1,8 @@
 /*
- * module_common.cpp
- * A library for SeeedStudio GPS Tracker
+ * wiowio_trackerlte.cpp
+ * A library for SeeedStudio Wio LTE Tracker
  *  
- * Copyright (c) 2017 seeed technology inc.
+ * Copyright (c) 2017 Seeed Technology Co., Ltd.
  * Website    : www.seeed.cc
  * Author     : lawliet zou, lambor
  * Create Time: April 2017
@@ -30,7 +30,7 @@
  */
 
  #include <stdio.h>
- #include "module_common.h"
+ #include "wio_tracker.h"
 
 // WioTracker* WioTracker::inst;
 
@@ -68,7 +68,7 @@ bool WioTracker::init(void)
 
 bool WioTracker::Check_If_Power_On(void)
 {
-    if(check_with_cmd(F("AT\r\n"), "OK", CMD, 2, 2000, true)){
+    if(check_with_cmd(F("AT\r\n"), "OK", CMD, 2, 2000)){
         // Set URC port to uart1
         // setURCtoUart1();
         return true;
@@ -152,29 +152,45 @@ bool WioTracker::checkSIMStatus(void)
 
 bool WioTracker::waitForNetworkRegister(void)
 {
+  bool ret;
   int errCounts = 0;
 
-  //
-  while(!check_with_cmd("AT+CEREG?\r\n", "+CEREG: 0,1", CMD, 2, 2000)){
+  // Check Registration Status
+  while(1){
+    if(check_with_cmd("AT+CEREG?\r\n", "+CEREG: 0,1", CMD, 2, 2000) || // Home network
+        check_with_cmd("AT+CEREG?\r\n", "+CEREG: 0,5", CMD, 2, 2000)) // Roaming
+    {
+        ret = true;
+        break;
+    }
     errCounts++;
     if(errCounts > 15)    // Check for 30 times
     {
-      return false;
+      ret = false;
+      break;
     }
     delay(1000);
   }
 
   errCounts = 0;
-  while(!check_with_cmd("AT+CGREG?\r\n", "+CGREG: 0,1", CMD, 2, 2000)){
+  while(1)
+  {
+    if(check_with_cmd("AT+CGREG?\r\n", "+CGREG: 0,1", CMD, 2, 2000) || // Home network
+        check_with_cmd("AT+CGREG?\r\n", "+CGREG: 0,5", CMD, 2, 2000)) // Roaming
+    {
+        ret = true;
+        break;
+    }
     errCounts++;
     if(errCounts > 15)    // Check for 30 times
     {
-      return false;
+    ret = false;
+    break;
     }
     delay(1000);
   }
-
-  return true;
+  
+  return ret;
 }
 
 bool WioTracker::sendSMS(char *number, char *data)
@@ -239,10 +255,10 @@ int16_t WioTracker::detectRecUnreadSMS(void)
     clean_buffer(Buffer, 64);
     send_cmd("AT+CMGL=\"REC UNREAD\"\r\n");
     read_buffer(Buffer, 64, 2, 1000);
-#if(UART_DEBUG==true)
+    
     DEBUG("SMS Buffer: ");
     DEBUG(Buffer);
-#endif
+
     if(NULL != (s = strstr(Buffer, "+CMGL:"))){
         ps = s + 7;
         pe = strstr(s, "\"");
@@ -260,7 +276,7 @@ int16_t WioTracker::detectRecUnreadSMS(void)
     for(i = 0; i < strlen(str_index); i++)
     {
         if(!('0' <= str_index[i] && str_index[i] <= '9')){
-#if(UART_DEBUG==true)
+#if(UART_DEBUG)
             ERROR("SMS index invalid\r\n");
 #endif
             return -1;
