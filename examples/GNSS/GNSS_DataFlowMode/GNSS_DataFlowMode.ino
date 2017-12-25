@@ -22,11 +22,6 @@ void setup(){
 }
 
 void loop(){
-  char buffer[128];
-  
-  send_cmd("AT+QGPSLOC?\r\n");
-  read_buffer(buffer, 128, 2, 2000);  
-  SerialUSB.println(buffer);
-
+  gnss.dataFlowMode();
   delay(2000);
 }

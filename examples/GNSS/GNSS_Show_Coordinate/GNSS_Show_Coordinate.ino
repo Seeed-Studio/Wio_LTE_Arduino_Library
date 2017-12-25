@@ -22,21 +22,21 @@ void setup() {
 
 void loop() {
   if(gnss.getCoordinate()){
+    SerialUSB.println();
     SerialUSB.print("GNSS: \r\n");
 
     // Output double type
+    SerialUSB.print("Data type in double: ");
     SerialUSB.print(gnss.longitude, 6);
     SerialUSB.print(",");
     SerialUSB.println(gnss.latitude, 6);
     
     // Output char* type
+    SerialUSB.print("Data type in string: ");
     SerialUSB.print(gnss.str_longitude);
     SerialUSB.print(",");
     SerialUSB.println(gnss.str_latitude);
-    SerialUSB.println();
   } else{
-    SerialUSB.println("Error!");
+    SerialUSB.print("...");
   }
-  
-  delay(1000);
 }

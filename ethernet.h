@@ -42,6 +42,12 @@ enum Protocol {
     UDP    = 2
 };
 
+enum SocketAccessMode {
+    SOCKET_BUFFER_MODE = 0,
+    SOCKET_DIRECT_PUSH_MODE,
+    SOCKET_TRANSPARANT_MODE
+};
+
 class Ethernet : public WioTracker
 {
 public:
@@ -104,17 +110,9 @@ public:
      *      -1 on error
      *      0 on success
      */
-    bool connect(const char* ip, int port, int connectType = TCP);
+    bool connect(const char* ip, int port, int connectType = TCP, uint8_t dataAccessMode = SOCKET_DIRECT_PUSH_MODE);
 
-    /** send data to socket server
-     *  @param  data    data that will be send to socket server
-     *  @returns
-     *      0 on success
-     *      -1 on error
-     */
-    bool sendData(char* data);
-
-    /** send data to socket server
+    /** Write data to socket server
      *  @param  data    data that will be send to socket server
      *  @returns
      *      0 on success
@@ -122,12 +120,12 @@ public:
      */
     bool write(char *data);
 
-    /** Receive data
+    /** Read data from 
      * 
      * 
      * 
     */
-    bool revc();
+    bool read();
 
     /** Get socket status
      *  @returns

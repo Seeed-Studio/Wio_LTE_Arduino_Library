@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "module_common.h"
+#include "wio_tracker.h"
 #include <Wire.h>
 #include <SeeedGrayOLED.h>
 #include <avr/pgmspace.h>

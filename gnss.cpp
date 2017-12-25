@@ -141,6 +141,9 @@ bool GNSS::getCoordinate(void)
 
     doubleToString(longitude, latitude);
   }
+  else{
+    return false;
+  }
   return true;
 }
 

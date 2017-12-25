@@ -162,7 +162,7 @@ boolean wait_for_resp(const char* resp, DataType type, unsigned int timeout, uns
             char c = MODULE_PORT.read();
             
             if(debug){
-                DEBUG_BYTE(c);
+                SerialUSB.print(c);
             }
 
             prevChar = millis();

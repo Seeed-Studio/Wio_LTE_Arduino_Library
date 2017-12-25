@@ -152,29 +152,45 @@ bool WioTracker::checkSIMStatus(void)
 
 bool WioTracker::waitForNetworkRegister(void)
 {
+  bool ret;
   int errCounts = 0;
 
-  //
-  while(!check_with_cmd("AT+CEREG?\r\n", "+CEREG: 0,1", CMD, 2, 2000)){
+  // Check Registration Status
+  while(1){
+    if(check_with_cmd("AT+CEREG?\r\n", "+CEREG: 0,1", CMD, 2, 2000) || // Home network
+        check_with_cmd("AT+CEREG?\r\n", "+CEREG: 0,5", CMD, 2, 2000)) // Roaming
+    {
+        ret = true;
+        break;
+    }
     errCounts++;
     if(errCounts > 15)    // Check for 30 times
     {
-      return false;
+      ret = false;
+      break;
     }
     delay(1000);
   }
 
   errCounts = 0;
-  while(!check_with_cmd("AT+CGREG?\r\n", "+CGREG: 0,1", CMD, 2, 2000)){
+  while(1)
+  {
+    if(check_with_cmd("AT+CGREG?\r\n", "+CGREG: 0,1", CMD, 2, 2000) || // Home network
+        check_with_cmd("AT+CGREG?\r\n", "+CGREG: 0,5", CMD, 2, 2000)) // Roaming
+    {
+        ret = true;
+        break;
+    }
     errCounts++;
     if(errCounts > 15)    // Check for 30 times
     {
-      return false;
+    ret = false;
+    break;
     }
     delay(1000);
   }
-
-  return true;
+  
+  return ret;
 }
 
 bool WioTracker::sendSMS(char *number, char *data)
@@ -260,7 +276,7 @@ int16_t WioTracker::detectRecUnreadSMS(void)
     for(i = 0; i < strlen(str_index); i++)
     {
         if(!('0' <= str_index[i] && str_index[i] <= '9')){
-#if(UART_DEBUG==true)
+#if(UART_DEBUG)
             ERROR("SMS index invalid\r\n");
 #endif
             return -1;

@@ -3,8 +3,9 @@
 WioTracker wio = WioTracker();
 
 void setup() {
-  wio.Power_On();
-  SerialUSB.println("Power On!");
+  SerialUSB.println("Wait for power on...");
+  wio.Power_On();  
+  SerialUSB.println("Power On O.K!");
 
   while(!wio.init()){
     delay(1000);
@@ -28,5 +29,5 @@ void setup() {
 
 void loop() {
   /* Debug */
-  uart_bypass();
+  AT_bypass();
 }

@@ -2,6 +2,7 @@
 
 Ethernet eth = Ethernet();
 
+
 // const char apn[10] = "CMNET";
 const char apn[10] = "UNINET";
 const char URL[100] = "mbed.org";
@@ -17,21 +18,30 @@ void setup() {
   while(false == eth.Check_If_Power_On()){
     SerialUSB.println("Waitting for module to alvie...");
     delay(1000);
-  }  
-  SerialUSB.println("Power On O.K!");
+  }
+
+  while(!eth.init()){
+    delay(1000);
+    SerialUSB.println("Accessing network...");
+  }
+  SerialUSB.println("Initialize done...");
 
   eth.join(apn);
   SerialUSB.print("\n\rIP: ");
   SerialUSB.print(eth.ip_string);
 
-  if(eth.connect(URL, port, TCP)) {
-    eth.sendData(http_cmd);  
-  } else {
+  if(eth.connect(URL, port, TCP)) 
+  {
+    eth.write(http_cmd); 
+    while(MODULE_PORT.available()){
+        serialDebug.write(MODULE_PORT.read());
+    }    
+    eth.close(1);
+  } 
+  else {
     SerialUSB.println("Connect Error!");
   }
-  eth.revc();
-  eth.close(1);
-
+  
 }
 
 void loop() {
