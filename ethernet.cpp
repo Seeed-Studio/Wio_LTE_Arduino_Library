@@ -216,7 +216,7 @@ bool Ethernet::connect(const char *ip, int port, int connectType, uint8_t dataAc
     else if(connectType == UDP) { sprintf(cipstart, "AT+QIOPEN=1,0,\"UDP\",\"%s\",%d,0,%d\r\n", ip, port, dataAccessMode); }
     else { return false; } 
         
-    while(!check_with_cmd(cipstart, "+QIOPEN: 0", CMD, 2*DEFAULT_TIMEOUT, 2000, true)) {// connect tcp
+    while(!check_with_cmd(cipstart, "+QIOPEN: 0", CMD, 2*DEFAULT_TIMEOUT, 2000)) {// connect tcp
         ERROR("ERROR:QIOPEN");
         if(errCount > 3){
             return false;

@@ -68,7 +68,7 @@ bool WioTracker::init(void)
 
 bool WioTracker::Check_If_Power_On(void)
 {
-    if(check_with_cmd(F("AT\r\n"), "OK", CMD, 2, 2000, true)){
+    if(check_with_cmd(F("AT\r\n"), "OK", CMD, 2, 2000)){
         // Set URC port to uart1
         // setURCtoUart1();
         return true;

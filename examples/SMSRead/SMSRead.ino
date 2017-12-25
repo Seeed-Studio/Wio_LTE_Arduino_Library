@@ -1,4 +1,4 @@
-#include "wiowio_trackerlte.h"
+#include "wio_tracker.h"
 
 uint16_t newSMSNumber = -1;
 char message[128];

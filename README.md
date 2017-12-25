@@ -40,9 +40,6 @@ https://raw.githubusercontent.com/Seeed-Studio/Seeed_Platform/master/package_see
 5.Before connect USB cable to Computer press and hold BOOT button, in order to access ***STM BOOLARDER*** mode. <br>
 6.Verify and upload Arduino sketch.<br>
 
-SD Library
-===
-Download this [github repo](https://github.com/Seeed-Studio/SD), you need to move the original SD library out of the Arduino library path, and use the downloaded one.
 
-
+## Turn to [**Getting started**](http://wiki.seeed.cc/Wio_LTE_Cat.1/#play-with-arduino) from seeed wiki.
 
