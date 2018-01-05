@@ -36,6 +36,16 @@
 #include "UART_Interface.h"
 #include "stdio.h"
 
+typedef enum NMEA_TYPE{
+    GGA = 0,
+    RMC,
+    GSV,
+    GSA,
+    VTG,
+    GNS
+} NMEA_type;
+
+
 class GNSS : public WioTracker
 {
 public: 
@@ -48,71 +58,15 @@ public:
     char North_or_South[2];
     char West_or_East[2];
     
-    /**
-     *
-     */
-    bool initialize();
 
-    /**
-     *
-     */
     bool open_GNSS(int mode);
-
-    /**
-     *
-     */
     bool close_GNSS(void);
 
-    /** Open GNSS by directly
-     *
-     */
-    bool open_GNSS_default_mode(void);   // Default GNSS mode
-    
-    /** Open GNSS and turn on EPO mode
-     *
-     */
-    bool open_GNSS_EPO_quick_mode(void); // Quick mode with EPO
-    
-    /** Open EPO before open GNSS,that cost down GNSS consumption
-     *
-     */
-    bool open_GNSS_EPO_LP_mode(void);   // Low power consumption mode with EPO
-    
-    /** Before open EPO and GNSS, write Reference-Location into flash, this can help search location faster
-     *
-     */
-    bool open_GNSS_RL_mode(void);     // Reference-location mode
-
-    /** open GNSS
-     *
+    /** 
+     *  open GNSS
      */
     bool open_GNSS(void);
     
-    /**
-     *
-     */
-    bool settingContext(void);
-    
-    /**
-     *
-     */
-    bool isNetworkRegistered(void);
-    
-    /**
-     *
-     */
-    bool isTimeSynchronized(void);
-    
-    /**
-     *
-     */
-    bool enableEPO(void);
-    
-    /**
-     *
-     */
-    bool triggerEPO(void);
-
     /**
      * Convert double coordinate data to string
      */
@@ -125,9 +79,36 @@ public:
     bool getCoordinate(void);
 
     /**
-     *
+     * Aquire GPS sentence
      */    
     bool dataFlowMode(void);
+    
+    /**
+     * Set outpu sentences in NMEA mode
+    */
+    bool enable_NMEA_mode();
+    
+    /**
+     * Disable NMEA mode
+    */
+    bool disable_NMEA_mode();
+
+    /**
+     *  Request NMEA data and save the responce sentence
+    */
+    bool NMEA_read_and_save(const char *type, char *save_buff);
+
+    /**
+     * Read NMEA data
+    */
+    bool read_NMEA(NMEA_type data_type, char *recv_buff);
+
+    /**
+     * Read NMEA GSV sentence
+     * GSV sentence gonna be 6 lines, that's too much content to save as other NMEA data.
+     * save_buff should be 512 Bytes size at least. 
+    */
+    bool read_NMEA_GSV(char *save_buff);
 };
 
 #endif

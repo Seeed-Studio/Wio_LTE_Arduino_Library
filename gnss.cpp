@@ -157,3 +157,114 @@ void GNSS::doubleToString(double longitude, double latitude)
   sprintf(str_longitude, "%d.%lu", u8_lon, u32_lon);
   sprintf(str_latitude, "%d.%lu", u8_lat, u32_lat);
 }
+
+bool GNSS::enable_NMEA_mode()
+{
+  if(!check_with_cmd("AT+QGPSCFG=\“nmeasrc\",1\r\n", "OK", CMD, DEFAULT_TIMEOUT, 2000)){
+        return false;
+  }
+  return true;
+}
+
+bool GNSS::disable_NMEA_mode()
+{
+  if(!check_with_cmd("AT+QGPSCFG=\“nmeasrc\",0\r\n", "OK", CMD, DEFAULT_TIMEOUT, 2000)){
+        return false;
+  }
+  return true;
+}
+
+bool GNSS::NMEA_read_and_save(const char *type, char *save_buff)
+{
+  char recv_buff[192];
+  char send_buff[32];
+  char *p = NULL;
+  uint16_t i = 0;
+
+  clean_buffer(recv_buff,192);
+  clean_buffer(send_buff,32);  
+  sprintf(send_buff, "AT+QGPSGNMEA=\"%s\"\r\n", type);                                                                                                                                                                                          
+  send_cmd(send_buff);  // Send command
+  read_string_until(recv_buff, 192, "OK", 1);  // Save response data
+  // SerialUSB.print("##DEBUG read_string_until: ");
+  // SerialUSB.println(recv_buff);
+  if(NULL == (p = strstr(recv_buff, "+QGPSGNMEA:")))
+  {
+    return false;
+  }
+  p += 12;  
+  while((*(p) != '\n') && (*(p) != '\0')) {  // If receive "+QGPSGNMEA:", than keep saving the NMEA sentence 
+    save_buff[i++] = *(p++);
+  }
+  save_buff[i] = '\0';
+  // SerialUSB.print("##DEBUG save_buff: ");
+  // SerialUSB.println(save_buff);
+  return true;
+
+} 
+
+bool GNSS::read_NMEA(NMEA_type type, char *save_buff)
+{
+  switch(type){
+    case GGA:                
+      NMEA_read_and_save("GGA", save_buff);
+      break;
+    case RMC:
+      NMEA_read_and_save("RMC", save_buff);
+      break;
+    case GSV:
+      // NMEA_read_and_save("GSV", save_buff); // Delete GSV aquirement, too much content to be saved, 
+      break;
+    case GSA:
+      NMEA_read_and_save("GSA", save_buff);
+      break;
+    case VTG:
+      NMEA_read_and_save("VTG", save_buff);
+      break;
+    case GNS:
+      NMEA_read_and_save("GNS", save_buff);  // GNS sentence didn't show anything.
+      break;    
+
+    default:
+      break;
+  }
+
+  return true;
+}
+
+/**
+ * Read NMEA GSV sentence
+ * GSV sentence gonna be 6 lines, that's too much content to save as other NMEA data.
+ * save_buff should be 512 Bytes size at least. 
+*/
+bool GNSS::read_NMEA_GSV(char *save_buff)
+{
+  char recv_buff[512];
+  char *p;
+  uint16_t i = 0;
+
+  clean_buffer(recv_buff,192);                                                                                                                                                                                                                  
+  send_cmd("AT+QGPSGNMEA=\"GSV\"\r\n");  // Send command
+  read_string_until(recv_buff, 512, "OK", 1);  // Save response data  
+  // SerialUSB.print("##DEBUG read_string_until: ");
+  // SerialUSB.println(recv_buff);
+
+  if(NULL == (p = strstr(recv_buff, "+QGPSGNMEA:")))
+  {
+    return false;
+  }
+
+  // while(NULL != (p = strstr((recv_buff+i), "+QGPSGNMEA:")))
+  while(NULL != (p = strstr(p, "+QGPSGNMEA:")))
+  {
+    p += 12;    
+    while((*(p) != '\n') && (*(p) != '\0')) {  // If receive "+QGPSGNMEA:", than keep saving the NMEA sentence 
+      save_buff[i++] = *(p++);
+    }
+  }
+  
+  // SerialUSB.print("##DEBUG save_buff: ");
+  // SerialUSB.println(save_buff);
+  return true;
+
+} 
