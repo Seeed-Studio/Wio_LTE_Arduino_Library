@@ -80,12 +80,11 @@ void WioTracker::Power_On(void)
 {
   int pwr_status = 1;
   int errCnt = 0;
+  bool is_power_on = false; 
 
   serialPort_init();
 
-  if(Check_If_Power_On()){
-    return;
-  }    
+  is_power_on = Check_If_Power_On(); 
 
 #if((1 == WIO_TRACKER_LTE_V12) && (CODEC_PWR_ON == 1))
     pinMode(CODEC_I2C_PWR_PIN, OUTPUT);
@@ -105,14 +104,17 @@ void WioTracker::Power_On(void)
 #if(1==ANTENNA_PWR_ON)  
   pinMode(ANT_PWR_PIN, OUTPUT);
   digitalWrite(ANT_PWR_PIN, HIGH);     // antenna power enable
-#endif 
+#endif
   pinMode(WAKEUP_IN_PIN, OUTPUT);
   digitalWrite(WAKEUP_IN_PIN, LOW);
-  pinMode(PWR_KEY_PIN, OUTPUT);
-  digitalWrite(PWR_KEY_PIN, LOW);
-  digitalWrite(PWR_KEY_PIN, HIGH);
-  delay(800);
-  digitalWrite(PWR_KEY_PIN, LOW);
+  if(!is_power_on) {   
+    pinMode(PWR_KEY_PIN, OUTPUT);
+    digitalWrite(PWR_KEY_PIN, LOW);
+    digitalWrite(PWR_KEY_PIN, HIGH);
+    delay(800);
+    digitalWrite(PWR_KEY_PIN, LOW);  
+  }
+  
 }
 
 void WioTracker::VCCB_Power_On(void)
