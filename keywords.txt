@@ -1,0 +1,103 @@
+  
+#######################################
+# Syntax Coloring Map For Seeed Wio GPS Board
+#######################################
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+Ethernet	KEYWORD2
+init	KEYWORD2
+join	KEYWORD2
+getIP	KEYWORD2
+str_to_ip	KEYWORD2
+recoverIP	KEYWORD2
+networkCheck	KEYWORD2
+connect	KEYWORD2
+write	KEYWORD2
+read	KEYWORD2
+getSocketStatus	KEYWORD2
+is_connected	KEYWORD2
+httpGET	KEYWORD2
+httpPUT	KEYWORD2
+close	KEYWORD2
+
+GNSS	KEYWORD2
+open_GNSS	KEYWORD2
+close_GNSS	KEYWORD2
+open_GNSS	KEYWORD2
+doubleToString	KEYWORD2
+getCoordinate	KEYWORD2
+dataFlowMode	KEYWORD2
+enable_NMEA_mode	KEYWORD2
+disable_NMEA_mode	KEYWORD2
+NMEA_read_and_save	KEYWORD2
+read_NMEA	KEYWORD2
+read_NMEA_GSV	KEYWORD2
+
+WS2812	KEYWORD2
+begin	KEYWORD2
+getLedNum	KEYWORD2
+setLedNum	KEYWORD2
+WS2812Clear	KEYWORD2
+pureColor	KEYWORD2
+green	KEYWORD2
+green	KEYWORD2
+WS2812Send	KEYWORD2
+saturation	KEYWORD2
+rainbowCycle	KEYWORD2
+colorWheel	KEYWORD2
+RGBCycle	KEYWORD2
+
+serialPort_init	KEYWORD2
+AT_bypass	KEYWORD2
+check_readable	KEYWORD2
+wait_readable	KEYWORD2
+flush_serial	KEYWORD2
+read_string_line	KEYWORD2
+read_string_until	KEYWORD2
+read_buffer	KEYWORD2
+clean_buffer	KEYWORD2
+send_byte	KEYWORD2
+send_char	KEYWORD2
+send_cmd	KEYWORD2
+send_cmd	KEYWORD2
+send_cmd_P	KEYWORD2
+Test_AT	KEYWORD2
+send_End_Mark	KEYWORD2
+wait_for_resp	KEYWORD2
+check_with_cmd	KEYWORD2
+check_with_cmd	KEYWORD2
+
+WioTracker	KEYWORD2
+Check_If_Power_On	KEYWORD2
+Power_On	KEYWORD2
+VCCB_Power_On	KEYWORD2
+powerReset	KEYWORD2
+setURCtoUart1	KEYWORD2
+checkSIMStatus	KEYWORD2
+waitForNetworkRegister	KEYWORD2
+sendSMS	KEYWORD2
+readAllRecUnreadSMS	KEYWORD2
+detectRecUnreadSMS	KEYWORD2
+readSMS	KEYWORD2
+readSMS	KEYWORD2
+deleteSMS	KEYWORD2
+callUp	KEYWORD2
+answer	KEYWORD2
+hangup	KEYWORD2
+getSignalStrength	KEYWORD2
+recv	KEYWORD2
+set_CFUN	KEYWORD2
+set_SysClock	KEYWORD2
+module_sleep	KEYWORD2
+module_wakeup	KEYWORD2
+AT_PowerDown	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
