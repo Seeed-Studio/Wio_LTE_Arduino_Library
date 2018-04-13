@@ -29,7 +29,7 @@
  * THE SOFTWARE.
  */
 
-#include "Seeed_ws2812.h"
+#include "stm32f4_ws2812.h"
 
 #define STM32F40xx (1)
 

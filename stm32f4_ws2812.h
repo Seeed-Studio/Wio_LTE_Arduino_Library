@@ -29,8 +29,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef SEEED_WS2812_h
-#define SEEED_WS2812_h
+#ifndef STM32F4_WS2812_h
+#define STM32F4_WS2812_h
 
 #include <Arduino.h>
 #include <stdlib.h>
@@ -63,3 +63,6 @@ class WS2812 {
 };
 
 #endif
+/**
+ * STM32F4_WS2812_h
+*/
