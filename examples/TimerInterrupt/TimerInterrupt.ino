@@ -32,10 +32,6 @@ void Time1Init()
 void setup() {   
   delay(2000);
   SerialUSB.begin();
-  if(SerialUSB)
-  {
-    SerialUSB.println("SerialUSB does not begin");
-  }
   timeBegin = millis();  
   Time1Init();
 }
