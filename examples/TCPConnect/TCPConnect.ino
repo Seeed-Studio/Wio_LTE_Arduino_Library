@@ -13,38 +13,36 @@ int ret = 0;
 
 
 void setup() {
-  SerialUSB.println("Begin...");
-  eth.Power_On();
-  while(false == eth.Check_If_Power_On()){
-    SerialUSB.println("Waitting for module to alvie...");
-    delay(1000);
-  }
+    SerialUSB.println("Begin...");
+    eth.Power_On();
+    while (false == eth.Check_If_Power_On()) {
+        SerialUSB.println("Waitting for module to alvie...");
+        delay(1000);
+    }
 
-  while(!eth.init()){
-    delay(1000);
-    SerialUSB.println("Accessing network...");
-  }
-  SerialUSB.println("Initialize done...");
+    while (!eth.init()) {
+        delay(1000);
+        SerialUSB.println("Accessing network...");
+    }
+    SerialUSB.println("Initialize done...");
 
-  eth.join(apn);
-  SerialUSB.print("\n\rIP: ");
-  SerialUSB.print(eth.ip_string);
+    eth.join(apn);
+    SerialUSB.print("\n\rIP: ");
+    SerialUSB.print(eth.ip_string);
 
-  if(eth.connect(URL, port, TCP)) 
-  {
-    eth.write(http_cmd); 
-    while(MODULE_PORT.available()){
-        serialDebug.write(MODULE_PORT.read());
-    }    
-    eth.close(1);
-  } 
-  else {
-    SerialUSB.println("Connect Error!");
-  }
-  
+    if (eth.connect(URL, port, TCP)) {
+        eth.write(http_cmd);
+        while (MODULE_PORT.available()) {
+            serialDebug.write(MODULE_PORT.read());
+        }
+        eth.close(1);
+    } else {
+        SerialUSB.println("Connect Error!");
+    }
+
 }
 
 void loop() {
-  /* Debug */
-  AT_bypass();
+    /* Debug */
+    AT_bypass();
 }
